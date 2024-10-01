@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import  { IconaFrecceAvantiDietro,IconaBandierina } from './Icone';
+import { IconaFrecceAvantiDietro, IconaBandierina } from './Icone';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
 
                     {/* Freccia al centro */}
                     <View style={styles.arrowContainer}>
-                        <IconaFrecceAvantiDietro width={25}/>
+                        <IconaFrecceAvantiDietro width={25} />
                     </View>
 
                     {/* Icona e arrivo */}
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     infoContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection:'row',
-        marginBottom:20
+        flexDirection: 'row',
+        marginBottom: 20
     }
 });
 
