@@ -36,25 +36,27 @@ export function ThemedText({
 const styles = StyleSheet.create({
   default: {
     fontSize: 16,
+    fontFamily: 'Nunito', // Nunito-Regular
     lineHeight: 24,
   },
   defaultSemiBold: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '600',
+    fontFamily: 'NunitoSemiBold', // Usa Nunito-SemiBold
   },
   title: {
+    fontFamily: 'NunitoBold', // Usa Nunito-Bold
     fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
+    lineHeight: 38
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'NunitoBold', // Usa Nunito-Bold
   },
   link: {
     lineHeight: 30,
     fontSize: 16,
     color: '#0a7ea4',
+    fontFamily: 'Nunito',
   },
 });
