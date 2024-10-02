@@ -1,112 +1,73 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import Animated, {
-    useSharedValue,
-    useAnimatedProps,
-    withRepeat,
-    withTiming,
-    Easing,
-    SharedValue
-} from 'react-native-reanimated';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { insertCorse, findCorse } from '@/service/database';
+import { fetchFromAPI } from '@/service/request';
 
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+const HomeScreen = () => {
+    const [dati, setDati] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-const DebugSvgAnimation = () => {
-    // Definiamo la larghezza totale del canvas SVG e il percorso delle strisce
-    const svgWidth = 300;
-    const stripWidth = 50; // Larghezza di ogni striscia
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+             
+                // Prova a recuperare i dati dal database
+                const datiDB = await findCorse(); // Usa la funzione per trovare le corse
+                if (datiDB.length > 0) {
+                    console.log('ho uso i dati del db')
+                    setDati(datiDB); // Usa i dati dal DB se esistono
+                } else {
+                    // Se il database è vuoto, fai la richiesta all'API
+                    const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
+                    await insertCorse(datiAPI); // Salva i dati nel DB
+                    setDati(datiAPI); // Imposta i dati dalla API
+                }
+            } catch (error) {
+                console.error('Errore nel recupero o salvataggio dei dati: ', error);
+            } finally {
+                setLoading(false); // Disattiva il caricamento
+            }
+        };
 
-    // Valori animati per X (movimento orizzontale)
-    const translateX1 = useSharedValue(0);
-    const translateX2 = useSharedValue(0);
-    const translateX3 = useSharedValue(0);
-    const translateX4 = useSharedValue(0);
-
-    // Proprietà animate per ogni singola striscia
-    const createAnimatedProps = (translateX: SharedValue<number>) => {
-        console.log("cristo ", translateX)
-        return useAnimatedProps(() => ({
-            transform: [{ translateX: translateX.value }],
-        }));
-    }
-
-    const animatedProps1 = createAnimatedProps(translateX1);
-    const animatedProps2 = createAnimatedProps(translateX2);
-    const animatedProps3 = createAnimatedProps(translateX3);
-    const animatedProps4 = createAnimatedProps(translateX4);
-
-    React.useEffect(() => {
-        // Funzione per creare l'animazione infinita delle strisce
-        const createAnimation = (translateX: SharedValue<number>, delay: number) => {
-            setTimeout(() => {
-                translateX.value = withRepeat(
-                    withTiming(-svgWidth, {
-                        duration: 4000,
-                        easing: Easing.linear,
-                    }),
-                    -1,
-                    false
-                );
-            }, delay);
-        }
-
-        // Avviamo le animazioni, facendo partire ogni striscia da una posizione diversa
-        createAnimation(translateX1, 0);
-        createAnimation(translateX2, 100);
-        createAnimation(translateX3, 200);
-        createAnimation(translateX4, 300);
+        fetchData();
     }, []);
+
+    // Funzione per renderizzare una singola fermata
+    const renderFermata = ({ item }) => (
+        <View style={styles.fermataContainer}>
+            <Text style={styles.fermataText}>Nome: {item.nome}</Text>
+            <Text style={styles.fermataText}>Ordine: {item.ordine}</Text>
+            <Text style={styles.fermataText}>Latitudine: {item.latitudine}</Text>
+            <Text style={styles.fermataText}>Longitudine: {item.longitudine}</Text>
+        </View>
+    );
+
+    // Funzione per renderizzare una singola corsa con le fermate
+    const renderCorsa = ({ item }) => (
+        <View style={styles.corsaContainer}>
+            <Text style={styles.corsaTitle}>Corsa {item.nome}</Text>
+            <Text>Partenza: {item.partenza}</Text>
+            <Text>Arrivo: {item.arrivo}</Text>
+
+            <FlatList
+                data={item.fermate}  // Le fermate per ogni corsa
+                renderItem={renderFermata}  // Renderizza ogni fermata
+                keyExtractor={(fermata) => fermata.id.toString()}  // Chiave unica per ogni fermata
+            />
+        </View>
+    );
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <View style={styles.container}>
-            {/* Animazione dell'SVG */}
-            <Svg width={svgWidth} height={200} viewBox={`0 0 ${svgWidth} 134`}>
-                {/* Linea della strada */}
-                <Path d="M-3 82l435-1" stroke="#fff" strokeWidth={3} />
-
-                {/* Striscia 1 */}
-                <AnimatedPath
-                    animatedProps={animatedProps1}
-                    d="M0 112.5h25"
-                    stroke="#fff"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                {/* Striscia 2 */}
-                <AnimatedPath
-                    animatedProps={animatedProps2}
-                    d="M80 112.5h25"
-                    stroke="#fff"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                {/* Striscia 3 */}
-                <AnimatedPath
-                    animatedProps={animatedProps3}
-                    d="M160 112.5h25"
-                    stroke="#fff"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                {/* Striscia 4 */}
-                <AnimatedPath
-                    animatedProps={animatedProps4}
-                    d="M240 112.5h25"
-                    stroke="#fff"
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-            </Svg>
-            {/* Debug valori animati */}
-            <Text style={styles.debugText}>Valore X1: {translateX1.value.toFixed(2)}</Text>
-            <Text style={styles.debugText}>Valore X2: {translateX2.value.toFixed(2)}</Text>
-            <Text style={styles.debugText}>Valore X3: {translateX3.value.toFixed(2)}</Text>
-            <Text style={styles.debugText}>Valore X4: {translateX4.value.toFixed(2)}</Text>
+            <FlatList
+                data={dati}  // Array di corse
+                renderItem={renderCorsa}  // Renderizza ogni corsa
+                keyExtractor={(item) => item.id.toString()}  // Chiave unica per ogni corsa
+            />
         </View>
     );
 };
@@ -114,15 +75,27 @@ const DebugSvgAnimation = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'black',
+        padding: 20,
     },
-    debugText: {
-        marginTop: 20,
+    corsaContainer: {
+        marginBottom: 20,
+        padding: 10,
+        backgroundColor: '#f8f8f8',
+        borderRadius: 10,
+    },
+    corsaTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    fermataContainer: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#eaeaea',
+        borderRadius: 8,
+    },
+    fermataText: {
         fontSize: 16,
-        color: 'white',
     },
 });
 
-export default DebugSvgAnimation;
+export default HomeScreen;

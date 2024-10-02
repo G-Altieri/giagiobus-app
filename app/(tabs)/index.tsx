@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Dimensions, View, StatusBar } from 'react-native';
+import { Image, StyleSheet, Dimensions, View, StatusBar, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Svg, { Path } from 'react-native-svg';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -7,6 +7,9 @@ import { ThemedView } from '@/components/ThemedView';
 import DettagliLinea from '@/components/utils/DettagliLinea';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, interpolate, Easing } from 'react-native-reanimated';
 import { Marquee } from '@animatereactnative/marquee';
+import { insertCorse, findCorse } from '@/service/database';
+import { fetchFromAPI } from '@/service/request';
+import { getColorById } from '@/service/funcUtili';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -15,15 +18,35 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export default function HomeScreen() {
     // Stato per la scritta dinamica
-    const [dynamicText, setDynamicText] = useState('Lentella');
+    const [dynamicText, setDynamicText] = useState('L\'Aquila');
+    const [dati, setDati] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Aggiorna la scritta dinamica dopo un po' di tempo
+    //Recupero Informazioni
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDynamicText('L\'Aquila');
-        }, 3000); // Aggiorna la scritta dopo 3 secondi
-        return () => clearTimeout(timer);
+        const fetchData = async () => {
+            try {
+                // Prova a recuperare i dati dal database
+                const datiDB = await findCorse(); // Usa la funzione per trovare le corse
+                if (datiDB.length > 0) {
+                    console.log('uso i dati del db')
+                    setDati(datiDB); // Usa i dati dal DB se esistono
+                } else {
+                    // Se il database è vuoto, fai la richiesta all'API
+                    const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
+                    await insertCorse(datiAPI); // Salva i dati nel DB
+                    setDati(datiAPI); // Imposta i dati dalla API
+                }
+            } catch (error) {
+                console.error('Errore nel recupero o salvataggio dei dati: ', error);
+            } finally {
+                setLoading(false); // Disattiva il caricamento
+            }
+        };
+
+        fetchData();
     }, []);
+
 
     // Stato animato per il top del bus (oscillazione su e giù)
     const topBus = useSharedValue(10);
@@ -70,6 +93,7 @@ export default function HomeScreen() {
             true
         );
     }, []);
+
 
     return (
         <>
@@ -150,18 +174,43 @@ export default function HomeScreen() {
                     );
                 }}
             >
-                {/* Content Page */}
-                <View style={styles.contentContainer}>
-                    <DettagliLinea coloreBackground="#C85C5C" arrivo="Finanza" partenza="Terminal-Bus" numLinea={1} />
-                    <DettagliLinea coloreBackground="#468E70" arrivo="Finanza" partenza="Terminal-Bus" numLinea={2} />
-                    <DettagliLinea coloreBackground="#D9BF44" arrivo="Finanza" partenza="Terminal-Bus" numLinea={4} />
-                    <DettagliLinea coloreBackground="#D9BF44" arrivo="Finanza" partenza="Terminal-Bus" numLinea={4} />
-                    <DettagliLinea coloreBackground="#D9BF44" arrivo="Finanza" partenza="Terminal-Bus" numLinea={4} />
-                    <DettagliLinea coloreBackground="#D9BF44" arrivo="Finanza" partenza="Terminal-Bus" numLinea={4} />
-                </View>
-                <ThemedView style={styles.stepContainer}>
-                    <ThemedText type="subtitle">My Home</ThemedText>
-                </ThemedView>
+
+
+                {
+                    loading ?
+                        <View style={styles.containerLoading}>
+                            <ActivityIndicator size="large" color="#ffffff" />
+                            <ThemedText type="subtitle" lightColor="white">
+                                Caricamento Dati
+                            </ThemedText>
+                        </View> :
+                        <>
+
+                            {/* Content Page */}
+                            <View style={styles.contentContainer}>
+                                {dati.map((linea, index) => {
+                                    return <DettagliLinea
+                                        key={index}
+                                        coloreBackground={getColorById(linea.nome)}
+                                        arrivo={linea.arrivo}
+                                        partenza={linea.partenza}
+                                        numLinea={linea.nome}
+                                    />
+                                })}
+                                {dati.map((linea, index) => {
+                                    return <DettagliLinea
+                                        key={index}
+                                        coloreBackground={getColorById(linea.nome)}
+                                        arrivo={linea.arrivo}
+                                        partenza={linea.partenza}
+                                        numLinea={linea.nome}
+                                    />
+                                })}
+                            </View>
+                            <ThemedView style={styles.stepContainer}>
+                                <ThemedText type="subtitle">My Home</ThemedText>
+                            </ThemedView>
+                        </>}
             </ParallaxScrollView>
         </>
     );
@@ -205,8 +254,8 @@ const styles = StyleSheet.create({
         zIndex: 100,
         backgroundColor: '#132A68',
         paddingTop: 25, // Adjust based on the status bar height
-        paddingBottom:8,
-        paddingHorizontal:10,
+        paddingBottom: 8,
+        paddingHorizontal: 10,
     },
     containerTrattini: {
         width: screenWidth,
@@ -244,5 +293,11 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         width: '100%',
+    },
+    containerLoading: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 30
     },
 });
