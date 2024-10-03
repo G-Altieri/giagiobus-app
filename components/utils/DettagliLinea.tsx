@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconaFrecceAvantiDietro, IconaBandierina } from './Icone';
@@ -14,8 +15,18 @@ interface DettagliLineaProps {
 }
 
 const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo }) => {
+    const navigation = useNavigation();
+
+    const handlePress = () => {
+        navigation.navigate('dettagliLinea', {
+            coloreBackground,
+            numLinea,
+            partenza,
+            arrivo,
+        });
+    };
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={handlePress}>
             {/* Prima parte con bordi sinistri smussati */}
             <View style={[styles.leftPart, { backgroundColor: coloreBackground }]}>
                 <ThemedText style={styles.spacer}></ThemedText>
@@ -54,7 +65,7 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
             <View style={[styles.rightPart, { backgroundColor: coloreBackground }]}>
                 <ThemedText type='numLineaDettagliComponent'>{numLinea}</ThemedText>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 const heightScheda = 100;

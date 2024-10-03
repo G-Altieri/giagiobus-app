@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Dimensions, View, StatusBar, ActivityIndicator } from 'react-native';
+import { Image, StyleSheet, Dimensions, View, StatusBar, ActivityIndicator, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Svg, { Path } from 'react-native-svg';
 import ParallaxScrollView from '@/components/ParallaxScrollView';

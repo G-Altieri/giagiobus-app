@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { View } from 'react-native';  // Puoi rimuovere se non ti serve
 import { useColorScheme } from '@/hooks/useColorScheme';
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -35,6 +36,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="dettagliLinea"/>
         <Stack.Screen name="+not-found" />
  
       </Stack>
