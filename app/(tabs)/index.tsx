@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import DettagliLinea from '@/components/utils/DettagliLinea';
+import DettagliLinea from '@/components/utils/RowLineaBus';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, interpolate, Easing } from 'react-native-reanimated';
 import { Marquee } from '@animatereactnative/marquee';
 import { insertCorse, findCorse } from '@/service/database';
@@ -30,6 +30,7 @@ export default function HomeScreen() {
                 const datiDB = await findCorse(); // Usa la funzione per trovare le corse
                 if (datiDB.length > 0) {
                     console.log('uso i dati del db')
+                    //@ts-ignore
                     setDati(datiDB); // Usa i dati dal DB se esistono
                 } else {
                     // Se il database è vuoto, fai la richiesta all'API
@@ -190,20 +191,22 @@ export default function HomeScreen() {
                             <View style={styles.contentContainer}>
                                 {dati.map((linea, index) => {
                                     return <DettagliLinea
-                                        key={index}
-                                        coloreBackground={getColorById(linea.nome)}
-                                        arrivo={linea.arrivo}
-                                        partenza={linea.partenza}
+                                        key={index} //@ts-ignore
+                                        coloreBackground={getColorById(linea.nome)}  //@ts-ignore
+                                        arrivo={linea.arrivo} //@ts-ignore
+                                        partenza={linea.partenza} //@ts-ignore
                                         numLinea={linea.nome}
+                                        type={0}
                                     />
                                 })}
                                 {dati.map((linea, index) => {
                                     return <DettagliLinea
-                                        key={index}
-                                        coloreBackground={getColorById(linea.nome)}
-                                        arrivo={linea.arrivo}
-                                        partenza={linea.partenza}
+                                        key={index} //@ts-ignore
+                                        coloreBackground={getColorById(linea.nome)} //@ts-ignore
+                                        arrivo={linea.arrivo} //@ts-ignore
+                                        partenza={linea.partenza} //@ts-ignore
                                         numLinea={linea.nome}
+                                        type={0}
                                     />
                                 })}
                             </View>

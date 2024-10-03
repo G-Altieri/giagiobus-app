@@ -12,12 +12,13 @@ interface DettagliLineaProps {
     numLinea: number | string;
     partenza: string;
     arrivo: string;
+    type: number;
 }
 
-const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo }) => {
+const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, type = 0 }) => {
     const navigation = useNavigation();
-
     const handlePress = () => {
+        // @ts-ignore
         navigation.navigate('dettagliLinea', {
             coloreBackground,
             numLinea,
@@ -25,8 +26,20 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
             arrivo,
         });
     };
-    return (
-        <TouchableOpacity style={styles.container} onPress={handlePress}>
+
+    // Stile condizionale per il container
+    const containerStyle = [
+        styles.container,
+        type === 2 && styles.containerType2 // Aggiunge lo stile extra se type è 2
+    ];
+
+    const infoContainerStyle = [
+        styles.infoContainer,
+        type === 2 && styles.infoContainerType2 // Aggiunge lo stile extra se type è 2
+    ];
+
+    return (<>
+        <TouchableOpacity style={containerStyle} onPress={handlePress} disabled={type === 2 ? true : false}>
             {/* Prima parte con bordi sinistri smussati */}
             <View style={[styles.leftPart, { backgroundColor: coloreBackground }]}>
                 <ThemedText style={styles.spacer}></ThemedText>
@@ -35,7 +48,7 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
             {/* Parte centrale con partenza e arrivo */}
             <View style={styles.centerPart}>
                 {/* Sezione Informazioni Linea */}
-                <View style={styles.infoContainer}>
+                <View style={infoContainerStyle}>
                     {/* Icona e partenza */}
                     <View style={styles.iconContainer}>
                         <IconaBandierina />
@@ -54,11 +67,12 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
                     </View>
                 </View>
                 {/* Pulsante Dettagli */}
-                <View style={styles.buttonContainer}>
-                    <View style={styles.button}>
-                        <ThemedText type="dettagliLineaDettagliComponent" darkColor="#FFFFFF">Dettagli</ThemedText>
-                    </View>
-                </View>
+                {type == 0 ?
+                    <View style={styles.buttonContainer}>
+                        <View style={styles.button}>
+                            <ThemedText type="dettagliLineaDettagliComponent" darkColor="#FFFFFF">Dettagli</ThemedText>
+                        </View>
+                    </View> : null}
             </View>
 
             {/* Ultima parte con bordi destri smussati */}
@@ -66,7 +80,7 @@ const DettagliLinea: React.FC<DettagliLineaProps> = ({ coloreBackground, numLine
                 <ThemedText type='numLineaDettagliComponent'>{numLinea}</ThemedText>
             </View>
         </TouchableOpacity>
-    );
+    </>);
 };
 const heightScheda = 100;
 const styles = StyleSheet.create({
@@ -75,6 +89,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: 5,
         width: '100%', // Imposta la larghezza del contenitore al 100%
+    },
+    containerType2: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 5,
+        width: '100%', // Imposta la larghezza del contenitore al 100%
+        borderColor: '#132A68',
+        borderWidth: 3,
+        borderRadius: 23,
     },
     leftPart: {
         width: 30,
@@ -140,8 +163,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        marginBottom: 20
-    }
+        marginBottom: 20, // Margine di default
+    },
+    infoContainerType2: {
+        marginBottom: 0, // Margine per quando il type è 2
+    },
 });
 
-export default DettagliLinea;
+export default RowLineaBus;

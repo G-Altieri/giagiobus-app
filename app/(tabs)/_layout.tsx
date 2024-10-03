@@ -27,6 +27,7 @@ export default function TabLayout() {
         name="homeFarlocca"
         options={{
           title: 'homeFarlocca',
+          tabBarButton: () => null,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
@@ -36,6 +37,16 @@ export default function TabLayout() {
         name="test"
         options={{
           title: 'Test',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dettagliLinea"
+        options={{
+          title: 'dettagliLinea',
+          tabBarButton: () => null,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),

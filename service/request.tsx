@@ -10,3 +10,20 @@ export const fetchFromAPI = async () => {
     return [];
   }
 };
+
+
+// Funzione per ottenere un file geojson in base al numero del percorso
+//@ts-ignore
+export const fetchPercorso = async (numero) => {
+  try {
+    const url = `https://giagiobus.altervista.org/api/percorsi/percorso${numero}.geojson`;
+    //console.log('Richiesta URL:', url);
+    const response = await axios.get(url);
+    //console.log('response:', response);
+    const fileGeoJson = response.data;
+    return fileGeoJson;
+  } catch (error) {
+    console.error('Errore nella richiesta API del percorso:', error);
+    return null;
+  }
+};
