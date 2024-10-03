@@ -7,6 +7,7 @@ import RowDettagliLinea from '@/components/utils/RowLineaBus';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import MapView, { Geojson, PROVIDER_GOOGLE } from 'react-native-maps';
 import { fetchPercorso } from '@/service/request';
+import NavBar from '@/components/utils/navbar';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -35,20 +36,13 @@ const DettagliLinea = () => {
         barStyle="light-content" // Cambia il colore del testo e delle icone della barra di stato
         backgroundColor="#132A68" // Imposta lo sfondo della barra di stato
       />
+
       {/* View fissa per logo e titolo */}
-      <View style={styles.fixedHeader}>
-        <View style={styles.containerLogoText}>
-          <Image source={require('@/assets/images/logoConTesto.png')} style={styles.logo} />
-          <ThemedView style={styles.textTitoloPaginaOverlay}>
-            <ThemedText type="title" lightColor="white" style={styles.TextTitoloPagina}>
-              Linea {numLinea}
-            </ThemedText>
-          </ThemedView>
-        </View>
-      </View>
+      <NavBar title={'Linea ' + numLinea} />
+      
       {/* //@ts-ignore */}
       <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollView}>
+        <ScrollView>
           <RowDettagliLinea     //@ts-ignore
             coloreBackground={coloreBackground}  //@ts-ignore
             arrivo={arrivo} //@ts-ignore
@@ -138,17 +132,9 @@ const DettagliLinea = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 118,
+    marginTop: 100,
     backgroundColor: '#fff',
     padding: 5,
-    /*    padding: 5,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        backgroundColor: '#fff',
-        marginTop: 120 */
-  },
-  scrollView: {
-
   },
   textTitoloPercorso: {
     alignItems: 'flex-start',
@@ -162,44 +148,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginVertical: 10,
   },
-  label: {
-    fontWeight: 'bold',
-  },
-  fixedHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
-    backgroundColor: '#132A68',
-    paddingTop: 25, // Adjust based on the status bar height
-    paddingBottom: 8,
-    paddingHorizontal: 10,
-  },
-  containerTrattini: {
-    width: screenWidth,
-    bottom: 35,
-  },
-  containerLogoText: {
-    width: '100%',
-    flex: 1,
-    marginTop: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  textTitoloPaginaOverlay: {
-    marginRight: 0,
-    color: 'white',
-    backgroundColor: 'transparent',
-  },
   TextTitoloPagina: {
     fontSize: 30,
     textAlign: 'center',
-  }, logo: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
   },
   separator: {
     height: 5, // Spessore della linea

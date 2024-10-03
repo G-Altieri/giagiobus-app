@@ -27,3 +27,15 @@ export const fetchPercorso = async (numero) => {
     return null;
   }
 };
+
+// Funzione per ottenere tutte le fermate
+export const fetchAllFermate = async () => {
+  try {
+    const response = await axios.get('https://giagiobus.altervista.org/api/fermateMappa.php');
+    const fermate = response.data;
+    return fermate;
+  } catch (error) {
+    console.error('Errore nella richiesta API delle fermate:', error);
+    return [];
+  }
+};
