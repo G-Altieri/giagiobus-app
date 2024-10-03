@@ -20,6 +20,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBCq02HTE1ibyqnb4z_RlM-73YumxdHgmg"
+        }
+      },
       "package": "com.bronz.giagiobusapp"
     },
     "web": {

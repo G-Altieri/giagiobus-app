@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import RowDettagliLinea from '@/components/utils/RowLineaBus';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import MapView, { Geojson } from 'react-native-maps';
+import MapView, { Geojson, PROVIDER_GOOGLE } from 'react-native-maps';
 import { fetchPercorso } from '@/service/request';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -28,7 +28,6 @@ const DettagliLinea = () => {
       console.error('Errore nel caricamento del GeoJSON:', error);
     }
   };
-
   return (
     <>
       {/* Configurazione della StatusBar */}
@@ -64,6 +63,7 @@ const DettagliLinea = () => {
             </ThemedText>
           </ThemedView>
           <MapView
+            provider={PROVIDER_GOOGLE}
             style={styles.map}
             initialRegion={{
               latitude: 42.3498,
