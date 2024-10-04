@@ -5,19 +5,44 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import RowDettagliLinea from '@/components/utils/RowLineaBus';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import MapView, { Geojson, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Geojson, PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { fetchPercorso } from '@/service/request';
+import { IconaArrowBack, IconaMarkerFermata } from '@/components/utils/Icone';
 import NavBar from '@/components/utils/navbar';
 
 const { width: screenWidth } = Dimensions.get('window');
 
+type Fermata = {
+  id: string;
+  nome: string;
+  longitudine: string;
+  latitudine: string;
+  orari: string | null;
+  ordine: string;
+};
+
 const DettagliLinea = () => {
   // Get parameters from the route
-  const { coloreBackground, numLinea, partenza, arrivo } = useLocalSearchParams();
+  const { coloreBackground, numLinea, partenza, arrivo, listaFermate } = useLocalSearchParams();
+
+  // Effettua il parsing di listaFermate se è una stringa
+  let parsedListaFermate: Fermata[] = [];
+
+  if (typeof listaFermate === 'string') {
+    try {
+      parsedListaFermate = JSON.parse(listaFermate) as Fermata[];
+    } catch (e) {
+      console.error('Errore nel parsing di listaFermate:', e);
+    }
+  } else if (Array.isArray(listaFermate)) {
+    //@ts-ignore
+    parsedListaFermate = listaFermate as Fermata[];
+  }
 
   const [geojsonData, setGeojsonData] = useState(null);
 
   useEffect(() => {
+    console.log(listaFermate)
     fetchGeojson();
   }, []);
   // Funzione per caricare il file GeoJSON dall'URL
@@ -39,7 +64,7 @@ const DettagliLinea = () => {
 
       {/* View fissa per logo e titolo */}
       <NavBar title={'Linea ' + numLinea} />
-      
+
       {/* //@ts-ignore */}
       <SafeAreaView style={styles.container}>
         <ScrollView>
@@ -74,6 +99,18 @@ const DettagliLinea = () => {
                 strokeWidth={3}      // Spessore della linea
               />
             )}
+            {parsedListaFermate && parsedListaFermate.map((fermata: Fermata) => (
+              <Marker
+                key={fermata.id}
+                coordinate={{
+                  latitude: parseFloat(fermata.longitudine),
+                  longitude: parseFloat(fermata.latitudine),
+                }}
+                title={fermata.nome}
+              >
+                <IconaMarkerFermata size={40} color={fermata.nome == arrivo ? '#ffd700' : fermata.nome == partenza ? '#7ba05b' : '#fff'} />
+              </Marker>
+            ))}
           </MapView>
           <View style={styles.separator} />
           <ThemedView style={styles.textTitoloCercaBus}>

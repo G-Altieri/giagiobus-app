@@ -195,7 +195,8 @@ export default function HomeScreen() {
                                         coloreBackground={getColorById(linea.nome)}  //@ts-ignore
                                         arrivo={linea.arrivo} //@ts-ignore
                                         partenza={linea.partenza} //@ts-ignore
-                                        numLinea={linea.nome}
+                                        numLinea={linea.nome} //@ts-ignore
+                                        listaFermate={linea.fermate}
                                         type={0}
                                     />
                                 })}
@@ -205,7 +206,8 @@ export default function HomeScreen() {
                                         coloreBackground={getColorById(linea.nome)} //@ts-ignore
                                         arrivo={linea.arrivo} //@ts-ignore
                                         partenza={linea.partenza} //@ts-ignore
-                                        numLinea={linea.nome}
+                                        numLinea={linea.nome}//@ts-ignore
+                                        listaFermate={linea.fermate}
                                         type={0}
                                     />
                                 })}

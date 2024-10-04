@@ -61,7 +61,7 @@ export default function MappaScreen() {
                                 //@ts-ignore
                                 description={`Autobus: ${fermata.autobus.map(bus => bus.nome).join(', ')}`}
                             >
-                                <IconaMarkerFermata size={30} />
+                                <IconaMarkerFermata size={40} />
                             </Marker>
                         })}
                     </MapView>

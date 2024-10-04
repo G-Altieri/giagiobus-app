@@ -13,9 +13,10 @@ interface DettagliLineaProps {
     partenza: string;
     arrivo: string;
     type: number;
+    listaFermate: Array<{ id: string; latitudine: string; longitudine: string; nome: string; orari?: string | null; ordine: string }>;
 }
 
-const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, type = 0 }) => {
+const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, listaFermate, type = 0 }) => {
     const navigation = useNavigation();
     const handlePress = () => {
         // @ts-ignore
@@ -24,6 +25,7 @@ const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea,
             numLinea,
             partenza,
             arrivo,
+            listaFermate: JSON.stringify(listaFermate) 
         });
     };
 
