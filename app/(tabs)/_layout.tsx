@@ -4,6 +4,7 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { IconaBusStopFill, IconaBusStopOutline, IconaLineeFill, IconaLineeOutline } from '@/components/utils/Icone';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -13,13 +14,19 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? 'light'].background,
+          //borderTopColor: Colors[colorScheme ?? 'light'].border,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Linee',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          tabBarIcon: ({ color, focused }) => (<>
+            {focused ? <IconaLineeFill size={26} /> : <IconaLineeOutline size={26} />}
+            {/* <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} /> */}
+          </>
           ),
         }}
       />
@@ -27,9 +34,9 @@ export default function TabLayout() {
         name="fermate"
         options={{
           title: 'Fermate',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => (<>
+            {!focused ? <IconaBusStopOutline size={26} /> : <IconaBusStopFill size={26} />}
+          </>),
         }}
       />
       <Tabs.Screen
@@ -46,6 +53,7 @@ export default function TabLayout() {
         name="test"
         options={{
           title: 'Test',
+          tabBarButton: () => null,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),

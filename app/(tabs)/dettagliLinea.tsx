@@ -42,7 +42,6 @@ const DettagliLinea = () => {
   const [geojsonData, setGeojsonData] = useState(null);
 
   useEffect(() => {
-    console.log(listaFermate)
     fetchGeojson();
   }, []);
   // Funzione per caricare il file GeoJSON dall'URL
