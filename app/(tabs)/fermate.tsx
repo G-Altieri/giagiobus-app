@@ -34,7 +34,7 @@ export default function MappaScreen() {
     const [closestFermata, setClosestFermata] = useState(null);
     const mapRef = useRef(null); // Referenza per il MapView
 
-    const GOOGLE_MAPS_APIKEY = 'AIzaSyBCq02HTE1ibyqnb4z_RlM-73YumxdHgmg';
+    const GOOGLE_MAPS_APIKEY = 'AIzaSyBJMWR_sULOIoKl5M5S6ZubRQgcNCtJ4Ss';
 
     useEffect(() => {
         console.log("useEffect triggered - fetching data...");
@@ -111,6 +111,9 @@ export default function MappaScreen() {
 
     // Funzione per spostare la mappa alla fermata più vicina
     const centerOnClosestFermata = () => {
+        
+        console.log("mappp:", mapRef.current);
+        console.log("closestFermata:", closestFermata);
         if (closestFermata && mapRef.current) {
             console.log("Centrando sulla fermata più vicina:", closestFermata);
             mapRef.current.animateToRegion({
@@ -167,13 +170,17 @@ export default function MappaScreen() {
                                     <IconaMarkerFermata size={40} />
                                 </Marker>
                             })}
+
                         {/* Aggiunta della direzione tra utente e fermata più vicina */}
                         {/* {userLocation && closestFermata && (
                             <MapViewDirections
-                                origin={userLocation}
+                                origin={{
+                                    latitude:37.771707,
+                                    longitude: -122.0054812,
+                                }}
                                 destination={{
-                                    latitude: parseFloat(closestFermata.latitudine),
-                                    longitude: parseFloat(closestFermata.longitudine),
+                                    latitude:37.771707,
+                                    longitude: -122.4053769,
                                 }}
                                 apikey={GOOGLE_MAPS_APIKEY}
                                 strokeWidth={3}
