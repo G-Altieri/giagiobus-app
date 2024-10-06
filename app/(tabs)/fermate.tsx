@@ -34,13 +34,21 @@ export default function MappaScreen() {
     const [closestFermata, setClosestFermata] = useState(null);
     const mapRef = useRef(null); // Referenza per il MapView
 
-    const GOOGLE_MAPS_APIKEY = 'AIzaSyBJMWR_sULOIoKl5M5S6ZubRQgcNCtJ4Ss';
+    const GOOGLE_MAPS_APIKEY = 'YOUR_API_KEY_HERE';
 
+    // Chiamata per recuperare le fermate all'inizio
     useEffect(() => {
         console.log("useEffect triggered - fetching data...");
         fetchFermate();
-        fetchUserLocation(); // Chiamata per ottenere la posizione dell'utente
     }, []);
+
+    // Chiamata per ottenere la posizione utente SOLO dopo che le fermate sono state caricate
+    useEffect(() => {
+        if (dataFermate) {
+            console.log("Fermate caricate, ora otteniamo la posizione utente...");
+            fetchUserLocation();
+        }
+    }, [dataFermate]); // Questo effetto si attiva solo quando dataFermate è diverso da null
 
     // Funzione per caricare il file GeoJSON dall'URL
     const fetchFermate = async () => {
@@ -111,7 +119,6 @@ export default function MappaScreen() {
 
     // Funzione per spostare la mappa alla fermata più vicina
     const centerOnClosestFermata = () => {
-        
         console.log("mappp:", mapRef.current);
         console.log("closestFermata:", closestFermata);
         if (closestFermata && mapRef.current) {
@@ -165,7 +172,6 @@ export default function MappaScreen() {
                                     }}
                                     title={fermata.nome}
                                     description={`Autobus: ${fermata.autobus.map(bus => bus.nome).join(', ')}`}
-                                // pinColor={fermata === closestFermata ? 'red' : 'green'} // Colore rosso per la fermata più vicina
                                 >
                                     <IconaMarkerFermata size={40} />
                                 </Marker>
@@ -225,4 +231,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
