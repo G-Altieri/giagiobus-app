@@ -10,7 +10,7 @@ import MapViewDirections from 'react-native-maps-directions';
 
 // Funzione per calcolare la distanza tra due coordinate geografiche
 const getDistance = (lat1, lon1, lat2, lon2) => {
-    console.log("Calcolando distanza tra", { lat1, lon1 }, "e", { lat2, lon2 });
+    //console.log("Calcolando distanza tra", { lat1, lon1 }, "e", { lat2, lon2 });
 
     const toRad = (value) => (value * Math.PI) / 180;
 
@@ -24,7 +24,7 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distanza in km
 
-    console.log("Distanza calcolata:", distance, "km");
+    //console.log("Distanza calcolata:", distance, "km");
     return distance;
 };
 
@@ -32,30 +32,33 @@ export default function MappaScreen() {
     const [dataFermate, setDataFermate] = useState(null);
     const [userLocation, setUserLocation] = useState(null); // Stato per la posizione dell'utente
     const [closestFermata, setClosestFermata] = useState(null);
-    const mapRef = useRef(null); // Referenza per il MapView
+    const [travelTime, setTravelTime] = useState(null);  // Stato per il tempo di viaggio
+    // const [showDirections, setShowDirections] = useState(false);  // Stato per mostrare la direzione
+    const [loading, setLoading] = useState(true); // Stato di caricamento
+    const [buttonEnabled, setButtonEnabled] = useState(false); // Stato del pulsante
+    const mapRef = useRef(null);
 
-    const GOOGLE_MAPS_APIKEY = 'YOUR_API_KEY_HERE';
+    const GOOGLE_MAPS_APIKEY = 'AIzaSyBJMWR_sULOIoKl5M5S6ZubRQgcNCtJ4Ss';
 
-    // Chiamata per recuperare le fermate all'inizio
+    // Effettua il fetch delle fermate e la posizione utente all'inizio
     useEffect(() => {
-        console.log("useEffect triggered - fetching data...");
-        fetchFermate();
+        const fetchData = async () => {
+            setLoading(true);
+            await fetchFermate();
+            await fetchUserLocation();
+            setLoading(false);
+            setButtonEnabled(true); // Abilita il pulsante quando tutto è caricato
+        };
+
+        fetchData();
     }, []);
-
-    // Chiamata per ottenere la posizione utente SOLO dopo che le fermate sono state caricate
-    useEffect(() => {
-        if (dataFermate) {
-            console.log("Fermate caricate, ora otteniamo la posizione utente...");
-            fetchUserLocation();
-        }
-    }, [dataFermate]); // Questo effetto si attiva solo quando dataFermate è diverso da null
 
     // Funzione per caricare il file GeoJSON dall'URL
     const fetchFermate = async () => {
         try {
             console.log("Fetching fermate...");
             const fermate = await fetchAllFermate();
-            console.log("Fermate fetched:", fermate);
+            // console.log("Fermate fetched:", fermate);
             setDataFermate(fermate);
         } catch (error) {
             console.error('Errore nel caricamento del GeoJSON:', error);
@@ -80,15 +83,14 @@ export default function MappaScreen() {
             };
             console.log("User location:", userLoc);
             setUserLocation(userLoc);
-            findClosestFermata(userLoc);
         } catch (error) {
             console.error('Errore nel recuperare la posizione dell\'utente:', error);
         }
     };
 
     // Funzione per trovare la fermata più vicina all'utente
-    const findClosestFermata = (userLoc) => {
-        if (dataFermate && userLoc) {
+    const findClosestFermata = () => {
+        if (dataFermate && userLocation) {
             console.log("Finding closest fermata...");
             let minDistance = Infinity;
             let closest = null;
@@ -97,12 +99,12 @@ export default function MappaScreen() {
                 const latFermata = parseFloat(fermata.latitudine);
                 const lonFermata = parseFloat(fermata.longitudine);
                 const distance = getDistance(
-                    userLoc.latitude,
-                    userLoc.longitude,
+                    userLocation.latitude,
+                    userLocation.longitude,
                     lonFermata,
                     latFermata
                 );
-                console.log(`Distanza dalla fermata ${fermata.nome} [lat: ${latFermata}, lon: ${lonFermata}]:`, distance, "km");
+                //console.log(`Distanza dalla fermata ${fermata.nome} [lat: ${latFermata}, lon: ${lonFermata}]:`, distance, "km");
 
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -110,19 +112,21 @@ export default function MappaScreen() {
                 }
             });
 
-            console.log("Fermata più vicina:", closest);
+            //console.log("Fermata più vicina:", closest);
             setClosestFermata(closest);
+            if (closest) {
+                centerOnClosestFermata(closest);
+            }
         } else {
             console.log("Dati non disponibili per calcolare la fermata più vicina.");
         }
     };
 
     // Funzione per spostare la mappa alla fermata più vicina
-    const centerOnClosestFermata = () => {
-        console.log("mappp:", mapRef.current);
-        console.log("closestFermata:", closestFermata);
+    const centerOnClosestFermata = (closestFermata) => {
+
         if (closestFermata && mapRef.current) {
-            console.log("Centrando sulla fermata più vicina:", closestFermata);
+          //  console.log("Centrando sulla fermata più vicina:", closestFermata);
             mapRef.current.animateToRegion({
                 latitude: parseFloat(closestFermata.longitudine),
                 longitude: parseFloat(closestFermata.latitudine),
@@ -178,25 +182,41 @@ export default function MappaScreen() {
                             })}
 
                         {/* Aggiunta della direzione tra utente e fermata più vicina */}
-                        {/* {userLocation && closestFermata && (
+                        {userLocation && closestFermata && (
                             <MapViewDirections
                                 origin={{
-                                    latitude:37.771707,
-                                    longitude: -122.0054812,
+                                    latitude: userLocation.latitude,
+                                    longitude: userLocation.longitude,
                                 }}
                                 destination={{
-                                    latitude:37.771707,
-                                    longitude: -122.4053769,
+                                    latitude: parseFloat(closestFermata.longitudine),
+                                    longitude: parseFloat(closestFermata.latitudine),
                                 }}
                                 apikey={GOOGLE_MAPS_APIKEY}
                                 strokeWidth={3}
                                 strokeColor="blue"
+                                onReady={(result) => {
+                                    console.log(`Durata del percorso: ${result.duration} minuti`);// @ts-ignore
+                                    setTravelTime(result.duration);  // Imposta il tempo di viaggio in minuti
+                                }}
                             />
-                        )} */}
+                        )}
                     </MapView>
-                    {/* Pulsante per centrare la mappa sulla fermata più vicina */}
-                    <TouchableOpacity style={styles.button} onPress={centerOnClosestFermata}>
-                        <Text style={styles.buttonText}>Mostra Fermata più Vicina</Text>
+                    {/* Label per il tempo di viaggio */}
+                    {travelTime !== null && (
+                        <Text style={styles.travelTimeText}>
+                            Tempo stimato a piedi: {Math.round(travelTime)} minuti
+                        </Text>
+                    )}
+                    {/* Pulsante per trovare la fermata più vicina */}
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: buttonEnabled ? '#132A68' : '#ccc' }]}
+                        onPress={findClosestFermata}
+                        disabled={!buttonEnabled}
+                    >
+                        <Text style={styles.buttonText}>
+                            {loading ? 'Loading...' : 'Trova Fermata più Vicina'}
+                        </Text>
                     </TouchableOpacity>
                 </ScrollView>
             </SafeAreaView>
@@ -229,5 +249,11 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    travelTimeText: {
+        fontSize: 18,
+        textAlign: 'center',
+        marginVertical: 10,
+        color: '#333',
     },
 });

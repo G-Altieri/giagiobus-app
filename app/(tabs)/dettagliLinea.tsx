@@ -64,7 +64,7 @@ const DettagliLinea = () => {
 
   useEffect(() => {
     fetchGeojson();
-  }, []);
+  }, [numLinea]);
   // Funzione per caricare il file GeoJSON dall'URL
   const fetchGeojson = async () => {
     try {
@@ -114,7 +114,7 @@ const DettagliLinea = () => {
             {geojsonData && (
               <Geojson
                 geojson={geojsonData}
-                strokeColor="blue"   // Colore della linea
+                strokeColor="#9e1139"   // Colore della linea
                 fillColor="red"      // Colore di riempimento (per poligoni)
                 strokeWidth={3}      // Spessore della linea
               />
@@ -128,7 +128,7 @@ const DettagliLinea = () => {
                 }}
                 title={fermata.nome}
               >
-                <IconaMarkerFermata size={40} color={fermata.nome == arrivo ? '#ffd700' : fermata.nome == partenza ? '#7ba05b' : '#fff'} />
+                <IconaMarkerFermata size={40} color={fermata.nome == arrivo ? '#ffd700' : fermata.nome == partenza ? '#79e51c' : '#fff'} />
               </Marker>
             ))}
           </MapView>

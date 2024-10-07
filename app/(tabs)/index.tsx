@@ -214,9 +214,6 @@ export default function HomeScreen() {
                                     />
                                 })}
                             </View>
-                            <ThemedView style={styles.stepContainer}>
-                                <ThemedText type="subtitle">My Home</ThemedText>
-                            </ThemedView>
                         </>}
             </ParallaxScrollView>
         </>
