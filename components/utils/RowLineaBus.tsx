@@ -12,11 +12,12 @@ interface DettagliLineaProps {
     numLinea: number | string;
     partenza: string;
     arrivo: string;
+    linkImage: string;
     type: number;
     listaFermate: Array<{ id: string; latitudine: string; longitudine: string; nome: string; orari?: string | null; ordine: string }>;
 }
 
-const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, listaFermate, type = 0 }) => {
+const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, linkImage, listaFermate, type = 0 }) => {
     const navigation = useNavigation();
     const handlePress = () => {
         // @ts-ignore
@@ -25,7 +26,8 @@ const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea,
             numLinea,
             partenza,
             arrivo,
-            listaFermate: JSON.stringify(listaFermate) 
+            linkImage: linkImage,
+            listaFermate: JSON.stringify(listaFermate)
         });
     };
 

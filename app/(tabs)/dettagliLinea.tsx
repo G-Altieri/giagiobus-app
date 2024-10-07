@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Dimensions, View, StatusBar, Text, ActivityIndicator, TouchableOpacity, SafeAreaView, ScrollView, } from 'react-native';
+import { StyleSheet, Dimensions, View, StatusBar, Text, ActivityIndicator, TouchableOpacity, SafeAreaView, ScrollView, } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';  // Hook to get route parameters
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -9,6 +9,8 @@ import MapView, { Geojson, PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { fetchPercorso } from '@/service/request';
 import { IconaArrowBack, IconaMarkerFermata } from '@/components/utils/Icone';
 import NavBar from '@/components/utils/navbar';
+import { Image } from 'expo-image';
+import ListaFermate from '@/components/utils/ListaFermate';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -23,7 +25,26 @@ type Fermata = {
 
 const DettagliLinea = () => {
   // Get parameters from the route
-  const { coloreBackground, numLinea, partenza, arrivo, listaFermate } = useLocalSearchParams();
+  const { coloreBackground, numLinea, partenza, arrivo, listaFermate, linkImage } = useLocalSearchParams();
+
+  const blurhash =
+    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
+  // Funzione per ottenere l'aspect ratio in base al numero dell'autobus
+  const getAspectRatio = (numLinea: string) => {
+    switch (numLinea) {
+      case '1':
+        return 1811 / 2621; // Aspect ratio calcolato
+      case '2':
+        return 932 / 716;   // Aspect ratio calcolato
+      case '4':
+        return 934 / 1118;  // Aspect ratio calcolato
+      default:
+        return 1;           // Valore di default, se il numero non corrisponde
+    }
+  };
+
+  const aspectRatio = getAspectRatio(numLinea);
 
   // Effettua il parsing di listaFermate se è una stringa
   let parsedListaFermate: Fermata[] = [];
@@ -111,53 +132,32 @@ const DettagliLinea = () => {
               </Marker>
             ))}
           </MapView>
+
           <View style={styles.separator} />
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.textTitoloCercaBus}>
-            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
-              Cerca il tuo Bus
-            </ThemedText>
-          </ThemedView>
+
           <ThemedView style={styles.textTitoloCercaBus}>
             <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
               Cerca il tuo Bus
             </ThemedText>
           </ThemedView>
 
+          <Image
+            style={[styles.image, { aspectRatio }]}  // Applica aspectRatio dinamico
+            source={linkImage}
+            placeholder={{ blurhash }}
+            contentFit="contain"
+            transition={800}
+          />
+
+          <View style={styles.separator} />
+
+          <ThemedView style={styles.textTitoloCercaFermata}>
+            <ThemedText type="title" darkColor="#132A68" lightColor='#132A68' style={styles.TextTitoloPagina}>
+              Cerca la tua Fermata
+            </ThemedText>
+          </ThemedView>
+
+          <ListaFermate fermate={parsedListaFermate} numLinea={numLinea}/>
 
 
         </ScrollView>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 100,
     backgroundColor: '#fff',
-    padding: 5,
+    paddingHorizontal: 5
   },
   textTitoloPercorso: {
     alignItems: 'flex-start',
@@ -178,6 +178,10 @@ const styles = StyleSheet.create({
   },
   textTitoloCercaBus: {
     alignItems: 'flex-end',
+    backgroundColor: 'transparent'
+  },
+  textTitoloCercaFermata: {
+    alignItems: 'flex-start',
     backgroundColor: 'transparent'
   },
   text: {
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   separator: {
-    height: 5, // Spessore della linea
+    height: 3, // Spessore della linea
     width: '100%',
     backgroundColor: '#d3d3d3', // Colore grigio (puoi cambiarlo)
     marginVertical: 10, // Distanza verticale tra gli elementi
@@ -199,9 +203,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
     borderRadius: 10, // Bordi arrotondati
-    marginTop: 10,
+    marginTop: 5,
     marginBottom: 0
   },
+
+  image: {
+    width: '100%',
+    resizeMode: 'contain', // Contiene l'immagine mantenendo le proporzioni
+  },
+
 });
 
 export default DettagliLinea;

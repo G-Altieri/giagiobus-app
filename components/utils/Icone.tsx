@@ -159,3 +159,48 @@ export function IconaMarkerFermata({ size = 24, color = '#fff', ...props }) {
         </Svg>
     );
 }
+
+
+
+//@ts-ignore
+export function IconaArrowDown({ size = 24, ...props }) {
+    return (
+        <Svg
+            viewBox="0 0 163 101"
+            fill="none"
+            width={size} // Corretto per usare la prop `size`
+            height={size} // Corretto per usare la prop `size`
+            {...props}
+        >
+            <Path
+                d="M157.608 95.395l-6.671-72.272m6.671 72.272l-72.573-.983m72.573.983L106.099 47.78m-27.735-25.64C65.156 9.93 32.15-7.358 5.79 21.157"
+                stroke="#1C274C"
+                strokeWidth={10}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </Svg>
+    );
+}
+
+//@ts-ignore
+export function IconaMarkerListaFermate({ size = 24, colore = "#C85C5C", ...props }) {
+    return (
+        <Svg
+            viewBox="0 0 95 173"
+            fill="none"
+            width={size} // Corretto per usare la prop `size`
+            height={size} // Corretto per usare la prop `size`
+            {...props}
+        >
+            <Path
+                d="M47.053 0C21.068 0 0 20.705 0 46.25c0 4.992.83 9.785 2.311 14.279C5.645 72.09 44.086 173 44.086 173s40.83-92.545 47.002-110.56c1.92-5.048 3.028-10.49 3.028-16.196C94.109 20.708 73.04 0 47.053 0zm0 82.717c-20.391 0-36.925-16.259-36.925-36.296 0-20.054 16.534-36.306 36.925-36.306 20.401 0 36.928 16.252 36.928 36.306 0 20.037-16.527 36.296-36.928 36.296z"
+                fill={colore}
+            />
+            <Path
+                d="M62.751 21.133H31.36c-3.222 0-5.845 2.79-5.845 6.233v33.537c0 2.288 1.159 4.276 2.882 5.358v3.585c0 1.179 1.927 2.124 4.32 2.124 2.381 0 4.319-.945 4.319-2.124v-2.713h5.288v-.003h10.933v.003h4.061v2.713c0 1.179 1.93 2.124 4.32 2.124 2.389 0 4.32-.945 4.32-2.124v-3.729c1.6-1.115 2.65-3.03 2.65-5.218V27.363c-.007-3.437-2.627-6.23-5.856-6.23zm-24.778 2.656h18.162v1.733H37.973V23.79zm3.64 33.205H30.148v-4.169h11.463v4.17zm11.636 9.621H42.316v-3.307h10.933v3.307zm11.29-9.62H53.072v-4.17H64.54v4.17zm.503-14.325c0 .424-.761.768-1.7.768H30.769c-.935 0-1.696-.347-1.696-.768V27.857c0-.427.761-.775 1.696-.775h32.575c.938 0 1.699.348 1.699.776V42.67z"
+                fill={colore}
+            />
+        </Svg>
+    );
+}

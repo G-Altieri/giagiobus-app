@@ -196,7 +196,8 @@ export default function HomeScreen() {
                                         arrivo={linea.arrivo} //@ts-ignore
                                         partenza={linea.partenza} //@ts-ignore
                                         numLinea={linea.nome} //@ts-ignore
-                                        listaFermate={linea.fermate}
+                                        listaFermate={linea.fermate}//@ts-ignore
+                                        linkImage={linea.orari}
                                         type={0}
                                     />
                                 })}
@@ -207,7 +208,8 @@ export default function HomeScreen() {
                                         arrivo={linea.arrivo} //@ts-ignore
                                         partenza={linea.partenza} //@ts-ignore
                                         numLinea={linea.nome}//@ts-ignore
-                                        listaFermate={linea.fermate}
+                                        listaFermate={linea.fermate}//@ts-ignore
+                                        linkImage={linea.orari}
                                         type={0}
                                     />
                                 })}

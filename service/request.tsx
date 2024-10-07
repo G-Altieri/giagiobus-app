@@ -16,7 +16,8 @@ export const fetchFromAPI = async () => {
 //@ts-ignore
 export const fetchPercorso = async (numero) => {
   try {
-    const url = `https://giagiobus.altervista.org/api/percorsi/percorso${numero}.geojson`;
+ //   const url = `https://giagiobus.altervista.org/api/percorsi/percorso${numero}.geojson`;
+ const url = `https://giagiobus.altervista.org/api/percorsi/nuovo.geojson`;
     //console.log('Richiesta URL:', url);
     const response = await axios.get(url);
     //console.log('response:', response);
