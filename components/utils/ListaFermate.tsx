@@ -1,23 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { IconaArrowDown, IconaMarkerListaFermate } from '@/components/utils/Icone'; // Importiamo un'icona freccia verso il basso
 import { getColorById } from '@/service/funcUtili';
+import { useNavigation } from '@react-navigation/native';
+import { ListaFermateProps } from '@/model/Type';
 
-type Fermata = {
-    id: string;
-    nome: string;
-    longitudine: string;
-    latitudine: string;
-    orari: string | null;
-    ordine: string;
-};
-
-interface ListaFermateProps {
-    fermate: Fermata[];
-    numLinea: any
-}
 
 const ListaFermate = ({ fermate, numLinea }: ListaFermateProps) => {
+    const navigation = useNavigation();
+
+    const handlePressChangePage = (idFermata: string) => {
+        // @ts-ignore
+        navigation.navigate('dettagliFermata', {
+            idFermata,
+        });
+    };
+
     return (
         <View style={styles.container}>
             {fermate.map((fermata, index) => {
@@ -30,25 +28,27 @@ const ListaFermate = ({ fermate, numLinea }: ListaFermateProps) => {
                         style={[styles.rowContainer, isEven ? styles.row : styles.rowReverse]} // Alterna la direzione della riga
                     >
                         {/* Riquadro con il nome della fermata */}
-                        <View style={styles.fermataContainer}>
+                        <TouchableOpacity style={styles.fermataContainer} onPress={() => handlePressChangePage(fermata.id)} >
                             <Text style={styles.fermataText}>{fermata.nome}</Text>
                             <IconaMarkerListaFermate size={30} colore={getColorById(numLinea)} />
-                        </View>
+                        </TouchableOpacity>
 
                         {/* Se non è l'ultima fermata, mostra la freccia */}
-                        {!isLast && (
-                            <View style={styles.arrowContainer}>
-                                <IconaArrowDown
-                                    size={30}
-                                    color="#000"
-                                    style={[isEven ? styles.arrowRight : styles.arrowLeft]} // Cambia la direzione della freccia
-                                />
-                            </View>
-                        )}
+                        {
+                            !isLast && (
+                                <View style={styles.arrowContainer}>
+                                    <IconaArrowDown
+                                        size={30}
+                                        color="#000"
+                                        style={[isEven ? styles.arrowRight : styles.arrowLeft]} // Cambia la direzione della freccia
+                                    />
+                                </View>
+                            )
+                        }
                     </View>
                 );
             })}
-        </View>
+        </View >
     );
 };
 

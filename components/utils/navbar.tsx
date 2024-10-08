@@ -1,25 +1,28 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { IconaArrowBack } from '@/components/utils/Icone';
 import { ThemedView } from '../ThemedView';
 import { ThemedText } from '../ThemedText';
-
-
+import { useRouter } from 'expo-router';
 
 interface HeaderWithBackButtonProps {
     title: string;
 }
 
 const NavBar: React.FC<HeaderWithBackButtonProps> = ({ title }) => {
-    const navigation = useNavigation();
+    const router = useRouter();
+
+    const handleGoBack = () => {
+        console.log("Going back to previous route");
+        router.back(); // Usa solo router.back() per tornare alla schermata precedente
+    };
 
     return (
         <View style={styles.fixedHeader}>
             <View style={styles.containerLogoText}>
                 <TouchableOpacity
                     style={styles.logoArrowBack}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => handleGoBack()}
                 >
                     <View>
                         <IconaArrowBack size={30} />

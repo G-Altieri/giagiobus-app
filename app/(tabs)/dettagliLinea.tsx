@@ -5,46 +5,30 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import RowDettagliLinea from '@/components/utils/RowLineaBus';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import MapView, { Geojson, PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { Geojson, PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
 import { fetchPercorso } from '@/service/request';
 import { IconaArrowBack, IconaMarkerFermata } from '@/components/utils/Icone';
 import NavBar from '@/components/utils/navbar';
 import { Image } from 'expo-image';
 import ListaFermate from '@/components/utils/ListaFermate';
+import { useNavigation } from '@react-navigation/native';
+import { Fermata } from '@/model/Type';
+import { getAspectRatio } from '@/service/funcUtili';
+import { useRouter } from 'expo-router';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-type Fermata = {
-  id: string;
-  nome: string;
-  longitudine: string;
-  latitudine: string;
-  orari: string | null;
-  ordine: string;
-};
 
 const DettagliLinea = () => {
+  const navigation = useNavigation();
   // Get parameters from the route
   const { coloreBackground, numLinea, partenza, arrivo, listaFermate, linkImage } = useLocalSearchParams();
+  const router = useRouter();
 
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-  // Funzione per ottenere l'aspect ratio in base al numero dell'autobus
-  const getAspectRatio = (numLinea: string) => {
-    switch (numLinea) {
-      case '1':
-        return 1811 / 2621; // Aspect ratio calcolato
-      case '2':
-        return 932 / 716;   // Aspect ratio calcolato
-      case '4':
-        return 934 / 1118;  // Aspect ratio calcolato
-      default:
-        return 1;           // Valore di default, se il numero non corrisponde
-    }
-  };
-
-  const aspectRatio = getAspectRatio(numLinea);
+  const aspectRatio = getAspectRatio(String(numLinea));
 
   // Effettua il parsing di listaFermate se è una stringa
   let parsedListaFermate: Fermata[] = [];
@@ -74,6 +58,18 @@ const DettagliLinea = () => {
       console.error('Errore nel caricamento del GeoJSON:', error);
     }
   };
+
+
+
+  const handlePressChangePage = (idFermata: string) => {
+ 
+    // navigation.navigate('dettagliFermata', { idFermata });
+    router.push({
+      pathname: '/dettagliFermata',
+      params: { idFermata, }
+    });
+  };
+
   return (
     <>
       {/* Configurazione della StatusBar */}
@@ -85,7 +81,7 @@ const DettagliLinea = () => {
       {/* View fissa per logo e titolo */}
       <NavBar title={'Linea ' + numLinea} />
 
-      {/* //@ts-ignore */}
+
       <SafeAreaView style={styles.container}>
         <ScrollView>
           <RowDettagliLinea     //@ts-ignore
@@ -110,6 +106,9 @@ const DettagliLinea = () => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
+            showsUserLocation={true}
+            followsUserLocation={true}
+            showsMyLocationButton={true}
           >
             {geojsonData && (
               <Geojson
@@ -129,6 +128,12 @@ const DettagliLinea = () => {
                 title={fermata.nome}
               >
                 <IconaMarkerFermata size={40} color={fermata.nome == arrivo ? '#ffd700' : fermata.nome == partenza ? '#79e51c' : '#fff'} />
+                <Callout onPress={() => handlePressChangePage(fermata.id)}>
+                  <TouchableOpacity style={{ width: 150 }} >
+                    <ThemedText type='titoloInfoMarker' >{fermata.nome}</ThemedText>
+                    <Text style={{ color: 'blue', fontWeight: 'bold' }}>Dettagli</Text>
+                  </TouchableOpacity>
+                </Callout>
               </Marker>
             ))}
           </MapView>
@@ -157,7 +162,7 @@ const DettagliLinea = () => {
             </ThemedText>
           </ThemedView>
 
-          <ListaFermate fermate={parsedListaFermate} numLinea={numLinea}/>
+          <ListaFermate fermate={parsedListaFermate} numLinea={numLinea} />
 
 
         </ScrollView>

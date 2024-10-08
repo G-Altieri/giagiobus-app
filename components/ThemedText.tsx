@@ -5,7 +5,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'numLineaDettagliComponent' | 'dettagliLineaDettagliComponent' | 'fermateLineaDettagliComponent';
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'titoloInfoMarker' | 'numLineaDettagliComponent' | 'dettagliLineaDettagliComponent' | 'fermateLineaDettagliComponent';
 };
 
 export function ThemedText({
@@ -29,6 +29,7 @@ export function ThemedText({
         type === 'numLineaDettagliComponent' ? styles.numLineaDettagliComponent : undefined,
         type === 'dettagliLineaDettagliComponent' ? styles.dettagliLineaDettagliComponent : undefined,
         type === 'fermateLineaDettagliComponent' ? styles.fermateLineaDettagliComponent : undefined,
+        type === 'titoloInfoMarker' ? styles.titoloInfoMarker : undefined,
         style,
       ]}
       {...rest}
@@ -76,4 +77,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'NunitoSemiBold', // Usa Nunito-Bold
   },
+  titoloInfoMarker: {
+    fontSize: 15,
+    fontFamily: 'NunitoBold', // Usa Nunito-Bold
+    color: '#132A68',
+  }
 });

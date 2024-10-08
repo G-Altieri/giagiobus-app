@@ -39,3 +39,20 @@ export const fetchAllFermate = async () => {
     return [];
   }
 };
+
+
+// Funzione per ottenere i dettagli di una Fermata
+//@ts-ignore
+export const fetchDettagliFermati = async (numero) => {
+  try {
+    const url = `https://giagiobus.altervista.org/api/dettagliFermata.php?idfermata=${numero}`;
+    //console.log('Richiesta URL:', url);
+    const response = await axios.get(url);
+    //console.log('response:', response);
+    const fileGeoJson = response.data;
+    return fileGeoJson;
+  } catch (error) {
+    console.error('Errore nella richiesta API del percorso:', error);
+    return null;
+  }
+};

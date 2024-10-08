@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconaFrecceAvantiDietro, IconaBandierina } from './Icone';
-
+import { useRouter } from 'expo-router';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 interface DettagliLineaProps {
@@ -19,15 +19,35 @@ interface DettagliLineaProps {
 
 const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, linkImage, listaFermate, type = 0 }) => {
     const navigation = useNavigation();
+    const router = useRouter();
     const handlePress = () => {
         // @ts-ignore
-        navigation.navigate('dettagliLinea', {
+        /*  navigation.navigate('dettagliLinea', {
+              coloreBackground,
+              numLinea,
+              partenza,
+              arrivo,
+              linkImage: linkImage,
+              listaFermate: JSON.stringify(listaFermate)
+          }); */
+        console.log('Navigating to dettagliLinea with params:', {
             coloreBackground,
             numLinea,
             partenza,
             arrivo,
-            linkImage: linkImage,
-            listaFermate: JSON.stringify(listaFermate)
+            linkImage,
+            listaFermate,
+        });
+        router.push({
+            pathname: '/dettagliLinea',
+            params: {
+                coloreBackground,
+                numLinea,
+                partenza,
+                arrivo,
+                linkImage,
+                listaFermate: JSON.stringify(listaFermate)
+            }
         });
     };
 

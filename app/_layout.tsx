@@ -35,9 +35,15 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        {/* Schermata principale delle tabs */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        {/* Schermate di dettaglio gestite nello stack */}
+        {/* <Stack.Screen name="dettagliLinea" options={{ title: 'Dettagli Linea', headerShown: false, }} /> */}
+        {/* <Stack.Screen name="dettagliFermata" options={{ title: 'Dettagli Fermata', headerShown: false, }} /> */}
+
+        {/* Schermata not-found */}
         <Stack.Screen name="+not-found" />
- 
       </Stack>
 
     </ThemeProvider>

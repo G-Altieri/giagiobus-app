@@ -1,44 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';  // Hook to get route parameters
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { fetchAllFermate } from '@/service/request';
 import NavBar from '@/components/utils/navbar';
 import * as Location from 'expo-location'; // Importa la libreria expo-location
 import { IconaMarkerFermata } from '@/components/utils/Icone';
 import MapViewDirections from 'react-native-maps-directions';
-
-// Funzione per calcolare la distanza tra due coordinate geografiche
-const getDistance = (lat1, lon1, lat2, lon2) => {
-    //console.log("Calcolando distanza tra", { lat1, lon1 }, "e", { lat2, lon2 });
-
-    const toRad = (value) => (value * Math.PI) / 180;
-
-    const R = 6371; // Raggio della Terra in km
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distanza in km
-
-    //console.log("Distanza calcolata:", distance, "km");
-    return distance;
-};
+import { useNavigation } from '@react-navigation/native';
+import { ThemedText } from '@/components/ThemedText';
+import { getDistance } from '@/service/funcUtili';
+import { Fermata, UserLocation } from '@/model/Type';
+import { GOOGLE_MAPS_APIKEY_DIRECTION } from '@/constants/Key';
 
 export default function MappaScreen() {
-    const [dataFermate, setDataFermate] = useState(null);
-    const [userLocation, setUserLocation] = useState(null); // Stato per la posizione dell'utente
-    const [closestFermata, setClosestFermata] = useState(null);
-    const [travelTime, setTravelTime] = useState(null);  // Stato per il tempo di viaggio
-    // const [showDirections, setShowDirections] = useState(false);  // Stato per mostrare la direzione
-    const [loading, setLoading] = useState(true); // Stato di caricamento
-    const [buttonEnabled, setButtonEnabled] = useState(false); // Stato del pulsante
-    const mapRef = useRef(null);
+    const [dataFermate, setDataFermate] = useState<Fermata[] | null>(null); // Specifica il tipo
+    const [userLocation, setUserLocation] = useState<UserLocation | null>(null); // Stato della posizione dell'utente
+    const [closestFermata, setClosestFermata] = useState<Fermata | null>(null); // Stato della fermata più vicina
+    const [travelTime, setTravelTime] = useState<number | null>(null); // Stato del tempo di viaggio
+    const [loading, setLoading] = useState<boolean>(true); // Stato di caricamento
+    const [buttonEnabled, setButtonEnabled] = useState<boolean>(false); // Stato del pulsante
+    const mapRef = useRef<MapView | null>(null); // Riferimento per MapView
+    const navigation = useNavigation();
 
-    const GOOGLE_MAPS_APIKEY = 'AIzaSyBJMWR_sULOIoKl5M5S6ZubRQgcNCtJ4Ss';
+    //Chiave Api Di Google per calcolare i percorsi 
+    const GOOGLE_MAPS_APIKEY = GOOGLE_MAPS_APIKEY_DIRECTION || '';
 
     // Effettua il fetch delle fermate e la posizione utente all'inizio
     useEffect(() => {
@@ -105,13 +91,11 @@ export default function MappaScreen() {
                     latFermata
                 );
                 //console.log(`Distanza dalla fermata ${fermata.nome} [lat: ${latFermata}, lon: ${lonFermata}]:`, distance, "km");
-
                 if (distance < minDistance) {
                     minDistance = distance;
                     closest = fermata;
                 }
             });
-
             //console.log("Fermata più vicina:", closest);
             setClosestFermata(closest);
             if (closest) {
@@ -123,10 +107,9 @@ export default function MappaScreen() {
     };
 
     // Funzione per spostare la mappa alla fermata più vicina
-    const centerOnClosestFermata = (closestFermata) => {
-
+    const centerOnClosestFermata = (closestFermata: Fermata) => {
         if (closestFermata && mapRef.current) {
-          //  console.log("Centrando sulla fermata più vicina:", closestFermata);
+            //  console.log("Centrando sulla fermata più vicina:", closestFermata);
             mapRef.current.animateToRegion({
                 latitude: parseFloat(closestFermata.longitudine),
                 longitude: parseFloat(closestFermata.latitudine),
@@ -138,6 +121,11 @@ export default function MappaScreen() {
         }
     };
 
+    const handlePressChangePage = (idFermata: string) => {
+        //@ts-ignore
+        navigation.navigate('dettagliFermata', { idFermata });
+    };
+
     return (
         <>
             {/* Configurazione della StatusBar */}
@@ -147,7 +135,6 @@ export default function MappaScreen() {
             />
             {/* View fissa per logo e titolo */}
             <NavBar title='Fermate' />
-            {/* //@ts-ignore */}
             <SafeAreaView style={styles.container}>
                 <ScrollView>
                     <MapView
@@ -166,7 +153,6 @@ export default function MappaScreen() {
                     >
                         {/* Aggiunta dei Marker per le fermate */}
                         {dataFermate &&
-                            //@ts-ignore
                             dataFermate.map((fermata) => {
                                 return <Marker
                                     key={fermata.id}
@@ -175,9 +161,15 @@ export default function MappaScreen() {
                                         longitude: parseFloat(fermata.latitudine),
                                     }}
                                     title={fermata.nome}
-                                    description={`Autobus: ${fermata.autobus.map(bus => bus.nome).join(', ')}`}
                                 >
                                     <IconaMarkerFermata size={40} />
+                                    <Callout onPress={() => handlePressChangePage(fermata.id)}>
+                                        <TouchableOpacity style={{ width: 150 }} >
+                                            <ThemedText type='titoloInfoMarker' >{fermata.nome}</ThemedText>
+                                            <Text>{`Autobus: ${fermata.autobus.map(bus => bus.nome).join(', ')}`}</Text>
+                                            <Text style={{ color: 'blue', fontWeight: 'bold' }}>Dettagli</Text>
+                                        </TouchableOpacity>
+                                    </Callout>
                                 </Marker>
                             })}
 

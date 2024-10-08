@@ -186,7 +186,6 @@ export default function HomeScreen() {
                             </ThemedText>
                         </View> :
                         <>
-
                             {/* Content Page */}
                             <View style={styles.contentContainer}>
                                 {dati.map((linea, index) => {
@@ -201,6 +200,7 @@ export default function HomeScreen() {
                                         type={0}
                                     />
                                 })}
+                                {/* INITULE MA INSERITO PER LO SCORRIMENTO */}
                                 {dati.map((linea, index) => {
                                     return <DettagliLinea
                                         key={index} //@ts-ignore
