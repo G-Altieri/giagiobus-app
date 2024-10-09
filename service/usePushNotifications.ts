@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+/*import { useState, useEffect, useRef } from "react";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
@@ -64,7 +64,7 @@ export const usePushNotifications = (): PushNotificationState => {
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF231F7C",
         }); */
-    }
+  /*  }
 
     return token;
   }
@@ -98,3 +98,4 @@ export const usePushNotifications = (): PushNotificationState => {
     notification,
   };
 };
+*/
