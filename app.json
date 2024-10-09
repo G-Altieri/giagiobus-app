@@ -20,6 +20,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi":true,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBCq02HTE1ibyqnb4z_RlM-73YumxdHgmg"

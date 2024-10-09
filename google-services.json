@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481537469751",
+    "project_id": "notifiche-giagiobus",
+    "storage_bucket": "notifiche-giagiobus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481537469751:android:f2dd989a93451877627eb2",
+        "android_client_info": {
+          "package_name": "com.bronz.giagiobusapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4_rMtrCfne06aLiDZN5Ua-kWMduhF_08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

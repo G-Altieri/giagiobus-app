@@ -63,7 +63,7 @@ const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea,
     ];
 
     return (<>
-        <TouchableOpacity style={containerStyle} onPress={handlePress} disabled={type === 2 ? true : false}>
+        <TouchableOpacity  activeOpacity={.8} style={containerStyle} onPress={handlePress} disabled={type === 2 ? true : false}>
             {/* Prima parte con bordi sinistri smussati */}
             <View style={[styles.leftPart, { backgroundColor: coloreBackground }]}>
                 <ThemedText style={styles.spacer}></ThemedText>
