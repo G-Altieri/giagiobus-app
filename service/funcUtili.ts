@@ -1,3 +1,4 @@
+
 // Funzione per ottenere il colore in base al nome (stringa)
 export const getColorById = (id: string): string => {
   switch (id) {
@@ -43,3 +44,4 @@ export const getAspectRatio = (numLinea: string) => {
       return 1;           // Valore di default, se il numero non corrisponde
   }
 };
+

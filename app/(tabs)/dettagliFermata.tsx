@@ -1,88 +1,144 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Dimensions, View, StatusBar, Text, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';  // Hook to get route parameters
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { StyleSheet, Dimensions, View, StatusBar, Text, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native'; import { useLocalSearchParams } from 'expo-router';
 import NavBar from '@/components/utils/navbar';
-import axios from 'axios';
-import { fetchDettagliFermati } from '@/service/request'; // Assumendo che tu abbia definito questa funzione nel file request
-import { Fermata } from '@/model/Type';
+import { fetchDettagliFermati } from '@/service/request'; // Funzione che recupera i dettagli
+import { dettagliOrario, Fermata } from '@/model/Type';
+import { sendPushNotificationToServer } from '@/service/request'; // Funzione di invio notifica
+import { useNotification } from "@/context/NotificationContext";
+import { IconaArrowBack, IconaBusStopFill } from '@/components/utils/Icone';
+import { ThemedText } from '@/components/ThemedText';
+import { Colors } from '@/constants/Colors';
+import { getColorById } from '@/service/funcUtili';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-
 const DettagliLinea = () => {
-  // Get parameters from the route
   const { idFermata } = useLocalSearchParams();
-  const [fermata, setFermata] = useState<Fermata | null>(null); // Stato per i dettagli della fermata
-  const [loading, setLoading] = useState(true); // Stato per indicare se i dati sono in fase di caricamento
+  const [fermata, setFermata] = useState<Fermata | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { expoPushToken } = useNotification();
+  const [modalVisible, setModalVisible] = useState(false); // Stato per la visibilità del modale
 
   // Funzione per ottenere i dettagli della fermata
   const getDettagliFermata = async () => {
     try {
-      const dettagli = await fetchDettagliFermati(idFermata); // Chiamata API
-      console.log(dettagli)
-      setFermata(dettagli); // Imposta lo stato con i dettagli della fermata
-      setLoading(false); // Fine del caricamento
+      const dettagli = await fetchDettagliFermati(idFermata);
+      setFermata(dettagli);
+      setLoading(false);
     } catch (error) {
       console.error('Errore nel caricamento dei dettagli della fermata:', error);
-      setLoading(false); // Fine del caricamento anche in caso di errore
+      setLoading(false);
     }
   };
 
-  // useEffect per chiamare la funzione quando il componente viene montato
   useEffect(() => {
     getDettagliFermata();
   }, [idFermata]);
 
+  // Funzione per gestire il click sugli orari
+  const handleSendNotification = (orario: string, nomeBus: string) => {
+    const title = `Il tuo Bus delle ${orario.slice(0, 5)} sta arrivando`;
+    const body = `Non dimenticare di prepararti! L'autobus ${nomeBus} è in arrivo per te.`;
+
+    sendPushNotificationToServer(title, body, expoPushToken);  // Invia la notifica con titolo e contenuto dinamici
+    setModalVisible(true); // Mostra il modale dopo aver inviato la notifica
+  };
+
+  // Funzione per ottenere tutti gli orari da tutti gli autobus
+  const getAllOrari = () => {
+    if (!fermata) return [];
+
+    const allOrari = fermata.autobus.flatMap((autobus) =>
+      autobus.orari.map((orario) => ({
+        orario: orario.orario.slice(0, 5), // Solo le prime 5 cifre (HH:MM)
+        arrivo: orario.arrivo,
+        nomeBus: autobus.nome,
+        colore: getColorById(autobus.nome) // Aggiungi il colore per il bus
+      }))
+    );
+
+    // Ottieni l'orario attuale
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+    // Dividi gli orari in due gruppi: futuri e passati
+    const orariFuturi = allOrari
+      .filter((orario) => orario.orario > currentTime)
+      .sort((a, b) => {
+        const [oreA, minutiA] = a.orario.split(':').map(Number);
+        const [oreB, minutiB] = b.orario.split(':').map(Number); //@ts-ignore
+        return new Date(0, 0, 0, oreA, minutiA) - new Date(0, 0, 0, oreB, minutiB);
+      });
+
+    const orariPassati = allOrari
+      .filter((orario) => orario.orario <= currentTime)
+      .sort((a, b) => {
+        const [oreA, minutiA] = a.orario.split(':').map(Number);
+        const [oreB, minutiB] = b.orario.split(':').map(Number); //@ts-ignore
+        return new Date(0, 0, 0, oreA, minutiA) - new Date(0, 0, 0, oreB, minutiB);
+      });
+
+    // Unisci i due gruppi: futuri seguiti dai passati
+    return [...orariFuturi, ...orariPassati];
+  };
+
   return (
     <>
-      {/* Configurazione della StatusBar */}
-      <StatusBar
-        barStyle="light-content" // Cambia il colore del testo e delle icone della barra di stato
-        backgroundColor="#132A68" // Imposta lo sfondo della barra di stato
-      />
+      <StatusBar barStyle="light-content" backgroundColor="#132A68" />
+      <NavBar title={fermata ? 'Fermata' : 'Caricamento...'} />
 
-      {/* View fissa per logo e titolo */}
-      <NavBar title={fermata ? fermata.nome : 'Caricamento...'} />
-      {/* Mostra il nome della fermata se disponibile */}
-
-      {/* SafeAreaView principale */}
       <SafeAreaView style={styles.container}>
         <ScrollView>
-          {/* Mostra un indicatore di caricamento finché i dati non sono stati caricati */}
           {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
             fermata && (
               <View>
-                {/* Dettagli della fermata */}
                 <View style={styles.section}>
-                  <Text style={styles.textTitolo}>{fermata.nome}</Text>
-                  <Text style={styles.textInfo}>ID Fermata: {fermata.id}</Text>
-                  <Text style={styles.textInfo}>
-                    Coordinate: {fermata.latitudine}, {fermata.longitudine}
-                  </Text>
+                  <IconaBusStopFill size={40} />
+                  <ThemedText type='title2' >{fermata.nome}</ThemedText>
+
                 </View>
 
-                {/* Divider */}
                 <View style={styles.separator} />
 
-                {/* Lista orari per ogni autobus che passa per la fermata */}
-                <View style={styles.section}>
-                  <Text style={styles.sottotitolo}>Autobus:</Text>
-                  {fermata.autobus.map((autobus) => (
-                    <View key={autobus.id} style={styles.autobusContainer}>
-                      <Text style={styles.autobusNome}>{autobus.nome}</Text>
-                      <Text style={styles.sottotitolo}>Orari:</Text>
-                      {autobus.orari.map((orario, index) => (
-                        <Text key={index} style={styles.orarioText}>
-                          {orario} {/* Adatta il formato dell'orario se necessario */}
-                        </Text>
-                      ))}
-                    </View>
+                <Text style={styles.descrizioneText}>Seleziona un bus e ti ricordiamo noi!</Text>
+
+                <View style={styles.contanierOrari}>
+                  {getAllOrari().map((orario, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      activeOpacity={0.5}
+                      style={styles.containerElementoOrario}
+                      onPress={() => handleSendNotification(orario.orario, orario.nomeBus)} // Associa la funzione di notifica al click
+                    >
+                      <Text style={styles.orarioText}>{orario.orario}</Text>
+                      <IconaArrowBack size={30} color={Colors.primario} style={styles.arrow} />
+                      <Text style={styles.orarioText}>{orario.arrivo}</Text>
+                      <View style={[styles.contanierNumero, { backgroundColor: orario.colore }]}>
+                        <Text style={styles.numText}>{orario.nomeBus}</Text>
+                      </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
+
+                {/* Modale di conferma */}
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={() => setModalVisible(false)} // Chiudi il modale con il tasto indietro
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalText}>Notifica registrata con successo!</Text>
+                      <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                        <Text style={styles.closeButtonText}>X</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                </Modal>
+
               </View>
             )
           )}
@@ -97,11 +153,55 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 100,
     backgroundColor: '#fff',
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
   },
   section: {
+    marginTop: 10,
+    paddingHorizontal: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  section2: {
     marginVertical: 10,
     paddingHorizontal: 15,
+  },
+  contanierOrari: {
+    flexDirection: 'column',
+    paddingHorizontal: 15,
+  },
+  arrow: {
+    //backgroundColor:'red',
+    marginVertical: -4,
+    transform: [{ scaleX: -1 }],
+  },
+  containerElementoOrario: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+    width: '100%', // Imposta la larghezza del contenitore al 100%
+    borderColor: '#132A68',
+    borderWidth: 3,
+    borderRadius: 23,
+    backgroundColor: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    flex: 1
+  },
+  contanierNumero: {
+    borderRadius: 10,
+    backgroundColor: 'red',
+    color: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 35,
+    width: 35
+  },
+  numText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
   },
   textTitolo: {
     fontSize: 24,
@@ -112,26 +212,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  busOrari: {
-    marginTop: 10,
-  },
-  busNome: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  busOrariText: {
-    fontSize: 16,
-    color: '#555',
-  },
   separator: {
-    height: 1,
+    height: 3, // Spessore della linea
     width: '100%',
-    backgroundColor: '#d3d3d3',
-    marginVertical: 15,
-  },
-  TextTitoloPagina: {
-    fontSize: 30,
-    textAlign: 'center',
+    backgroundColor: '#d3d3d3', // Colore grigio (puoi cambiarlo)
+    marginVertical: 10, // Distanza verticale tra gli elementi
+    borderRadius: 10, // Bordi arrotondati
   },
   sottotitolo: {
     fontSize: 18,
@@ -150,10 +236,64 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  orarioText: {
-    fontSize: 16,
-    color: '#555',
+  orariGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Dispone i pulsanti in più righe
+    justifyContent: 'space-between',
   },
+  orarioButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginVertical: 5,
+    borderRadius: 8,
+    width: '30%', // Imposta una larghezza del 30% per i pulsanti nella griglia
+    alignItems: 'center',
+  },
+  orarioText: {
+    color: Colors.primario,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  descrizioneText: {
+    color: Colors.primario,
+    fontSize: 20,
+    fontWeight: '500',
+    marginHorizontal: 'auto',
+    marginBottom: 10
+  },
+  // Stili per il modale
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Sfondo semi-trasparente
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'green', // Colore verde del modale
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalText: {
+    color: 'white',
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'transparent',
+    borderRadius: 20,
+    padding: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 20,
+  },  
 });
 
 export default DettagliLinea;

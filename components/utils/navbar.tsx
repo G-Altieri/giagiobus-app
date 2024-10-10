@@ -29,7 +29,7 @@ const NavBar: React.FC<HeaderWithBackButtonProps> = ({ title }) => {
                     </View>
                 </TouchableOpacity>
                 <ThemedView style={styles.textTitoloPaginaOverlay}>
-                    <ThemedText type="title" lightColor="white" style={styles.TextTitoloPagina}>
+                    <ThemedText type="title" lightColor="white" darkColor='white' style={styles.TextTitoloPagina}>
                         {title}
                     </ThemedText>
                 </ThemedView>

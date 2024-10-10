@@ -8,7 +8,7 @@ export interface Fermata {
     longitudine: string;
     orari: Orario[] | null;
     ordine: string | null;
-    autobus: { id: string; nome: string; orari: string[] }[]; 
+    autobus: { id: string; nome: string; orari: dettagliOrario[] }[];
 }
 
 // Definisce il tipo per UserLocation
@@ -26,8 +26,14 @@ export interface ListaFermateProps {
 // Definisce il tipo per Orario
 export type Orario = {
     nomeBus: string;
-    orari: string[];
+    orari: dettagliOrario[];
 };
+export type dettagliOrario = {
+    orario: string;
+    partenza: string;
+    arrivo: string;
+};
+
 
 
 /*

@@ -43,7 +43,7 @@ export function IconaBandierina(props: SvgProps) {
     );
 }
 //@ts-ignore
-export function IconaArrowBack({ size = 24, ...props }) {
+export function IconaArrowBack({ size = 24, color = '#fff', ...props }) {
     return (
         <Svg
             width={size} // Corretto per usare la prop `size`
@@ -54,7 +54,7 @@ export function IconaArrowBack({ size = 24, ...props }) {
         >
             <Path
                 d="M8 17l-5-5m0 0l5-5m-5 5h18"
-                stroke="#fff"
+                stroke={color}
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -114,7 +114,7 @@ export function IconaBusStopOutline({ size = 24, color = '#fff', ...props }) {
         </Svg>
     );
 }
-export function IconaBusStopFill({ size = 24, color = '#fff', ...props }) {
+export function IconaBusStopFill({ size = 24, color = '#132A68', ...props }) {
     return (
         <Svg
             width={size}
@@ -125,15 +125,15 @@ export function IconaBusStopFill({ size = 24, color = '#fff', ...props }) {
         >
             <Path
                 d="M31.16 17.017H18.605v7.563H31.16v-7.563zM30.379 38.111c0 .332.27.603.601.603h1.603c.332 0 .602-.27.602-.603v-1.517h-2.806v1.517zM9.863 19.196V22.4c0 .332.27.602.603.602h1.402v-4.408h-1.402a.603.603 0 00-.603.602zM16.582 38.111c0 .332.27.603.602.603h1.602c.332 0 .602-.27.602-.603v-1.517h-2.806v1.517zM39.3 18.594h-1.402v4.408h1.403c.332 0 .602-.27.602-.602v-3.204a.603.603 0 00-.602-.602z"
-                fill="#000"
+                fill={color}
             />
             <Path
                 d="M32.898 11.763h-16.03c-1.655 0-3 1.345-3 3v19.83h22.03v-19.83c0-1.655-1.345-3-3-3zM20.716 32.13a1.619 1.619 0 110-3.238 1.619 1.619 0 010 3.238zm8.334 0a1.62 1.62 0 110-3.238 1.62 1.62 0 010 3.238zm4.11-6.55a1 1 0 01-1 1H17.606a1 1 0 01-1-1v-8.766c0-.992.746-1.797 1.662-1.797h13.23c.916 0 1.662.805 1.662 1.797v8.766z"
-                fill="#000"
+                fill={color}
             />
             <Path
                 d="M40.478 0H9.288C4.165 0 0 4.166 0 9.287v31.191c0 5.122 4.166 9.289 9.287 9.289h14.096v22.417h-9.647a1.5 1.5 0 000 3H36.03a1.5 1.5 0 000-3h-9.646V49.767h14.095c5.122 0 9.288-4.167 9.288-9.289V9.288C49.766 4.165 45.6 0 40.478 0zm1.425 22.4a2.605 2.605 0 01-2.602 2.602h-1.403v10.592a1 1 0 01-1 1h-1.714v1.517a2.605 2.605 0 01-2.602 2.603H30.98a2.605 2.605 0 01-2.602-2.603v-1.517h-6.99v1.517a2.605 2.605 0 01-2.602 2.603h-1.602a2.605 2.605 0 01-2.602-2.603v-1.517h-1.715a1 1 0 01-1-1V25.002h-1.402A2.605 2.605 0 017.862 22.4v-3.204a2.606 2.606 0 012.603-2.602h1.402v-1.831c0-2.757 2.243-5 5-5h16.031c2.757 0 5 2.243 5 5v1.83h1.403a2.606 2.606 0 012.602 2.603V22.4z"
-                fill="#000"
+                fill={color}
             />
         </Svg>
     );

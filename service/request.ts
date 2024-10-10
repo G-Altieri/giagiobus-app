@@ -56,3 +56,40 @@ export const fetchDettagliFermati = async (numero) => {
     return null;
   }
 };
+
+//INVIO NOTIFICHE
+export const sendPushNotificationToServer = async (title: string, body: string, expoPushToken: any) => {
+  try {
+    // Recupera il token di notifica dal contesto
+    //  const { expoPushToken } = useNotification();
+
+    // Controlla che il token sia disponibile
+    if (!expoPushToken) {
+      console.error("NOTIFICATION Expo Push Token is not available");
+      return;
+    }
+
+    // Costruisci la richiesta con il titolo e il contenuto dinamici
+    console.log('expo notification token', expoPushToken)
+    const response = await fetch(`https://giagiobus.altervista.org/api/testNotifiche.php?expoToken=${expoPushToken}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title,  // Il titolo dinamico
+        body    // Il contenuto dinamico
+      })
+    });
+
+    // Gestisci la risposta del server
+    if (response.ok) {
+      const data = await response.text();
+      console.log("Server response:", data);
+    } else {
+      console.error("Error from server:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error sending notification:", error);
+  }
+};
