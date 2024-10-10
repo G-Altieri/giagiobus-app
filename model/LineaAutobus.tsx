@@ -6,6 +6,7 @@ export default class LineaAutobus {
     public nome: string | undefined;
     public partenza: string | undefined;
     public arrivo: string | undefined;
+    public orari: string | undefined;
     public fermate: Fermata[];  // Aggiunta della proprietà per le fermate
 
     constructor(nome: string, partenza: string, arrivo: string, fermate: Fermata[]) {
@@ -29,7 +30,7 @@ export default class LineaAutobus {
 }
 
 // Classe Fermata per gestire le fermate
-class Fermata {
+export class Fermata {
     
     public id: number | undefined;
     public nome: string | undefined;

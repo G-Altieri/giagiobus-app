@@ -7,9 +7,10 @@ export async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
+      importance: Notifications.AndroidImportance.HIGH, // Prova ad usare HIGH
+      vibrationPattern: [0, 500, 500, 500], // Aumenta la vibrazione
       lightColor: "#FF231F7C",
+      sound: true, // Aggiungi sound
     });
   }
 

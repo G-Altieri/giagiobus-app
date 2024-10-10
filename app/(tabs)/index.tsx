@@ -8,6 +8,7 @@ import DettagliLinea from '@/components/utils/RowLineaBus';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, interpolate, Easing } from 'react-native-reanimated';
 import { Marquee } from '@animatereactnative/marquee';
 import { insertCorse, findCorse } from '@/service/database';
+import { insertDati, findDati,cancellaDB } from '@/service/database2';
 import { fetchFromAPI } from '@/service/request';
 import { getColorById } from '@/service/funcUtili';
 
@@ -22,31 +23,71 @@ export default function HomeScreen() {
     const [dati, setDati] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    //Recupero Informazioni
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Prova a recuperare i dati dal database
-                const datiDB = await findCorse(); // Usa la funzione per trovare le corse
-                if (datiDB.length > 0) {
-                    console.log('uso i dati del db')
-                    //@ts-ignore
-                    setDati(datiDB); // Usa i dati dal DB se esistono
-                } else {
-                    // Se il database è vuoto, fai la richiesta all'API
-                    const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
-                    await insertCorse(datiAPI); // Salva i dati nel DB
-                    setDati(datiAPI); // Imposta i dati dalla API
-                }
-            } catch (error) {
-                console.error('Errore nel recupero o salvataggio dei dati: ', error);
-            } finally {
-                setLoading(false); // Disattiva il caricamento
-            }
-        };
-
-        fetchData();
+        //cancellaDB()
+        fetchData2();
+        //fetchData();
     }, []);
+
+    const fetchData2 = async () => {
+        try {
+            // Prova a recuperare i dati dal database
+            const datiDB = await findDati(); // Usa la funzione per trovare le corse
+            console.log('Dati recuperati dal database:', datiDB); // Log per debugging
+
+            if (datiDB.length > 0) {
+                console.log('Uso i dati dal DB');
+                //@ts-ignore
+                setDati(datiDB); // Usa i dati dal DB se esistono
+            } else {
+                console.log('Nessun dato trovato nel DB, eseguo fetch da API');
+                // Se il database è vuoto, fai la richiesta all'API
+                const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
+                //console.log('Dati recuperati dall\'API:', datiAPI);
+
+
+                // Salva i dati nel DB
+                await insertDati(datiAPI);
+                console.log('Dati inseriti nel DB con successo.');
+
+                setDati(datiAPI); // Imposta i dati dalla API
+            }
+        } catch (error) {
+            console.error('Errore nel recupero o salvataggio dei dati: ', error);
+        } finally {
+            setLoading(false); // Disattiva il caricamento
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            // Prova a recuperare i dati dal database
+            const datiDB = await findCorse(); // Usa la funzione per trovare le corse
+            console.log('Dati recuperati dal database:', datiDB); // Log per debugging
+
+            if (datiDB.length > 0) {
+                console.log('Uso i dati dal DB');
+                //@ts-ignore
+                setDati(datiDB); // Usa i dati dal DB se esistono
+            } else {
+                console.log('Nessun dato trovato nel DB, eseguo fetch da API');
+                // Se il database è vuoto, fai la richiesta all'API
+                const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
+                //console.log('Dati recuperati dall\'API:', datiAPI);
+
+
+                // Salva i dati nel DB
+                await insertCorse(datiAPI);
+                console.log('Dati inseriti nel DB con successo.');
+
+                setDati(datiAPI); // Imposta i dati dalla API
+            }
+        } catch (error) {
+            console.error('Errore nel recupero o salvataggio dei dati: ', error);
+        } finally {
+            setLoading(false); // Disattiva il caricamento
+        }
+    };
 
 
     // Stato animato per il top del bus (oscillazione su e giù)
@@ -108,7 +149,7 @@ export default function HomeScreen() {
                 <View style={styles.containerLogoText}>
                     <Image source={require('@/assets/images/logoConTesto.png')} style={styles.logo} />
                     <ThemedView style={styles.textTitoloPaginaOverlay}>
-                        <ThemedText type="title" lightColor="white" style={styles.TextTitoloPagina}>
+                        <ThemedText type="title" lightColor="white" darkColor='white' style={styles.TextTitoloPagina}>
                             Linee Autobus
                         </ThemedText>
                     </ThemedView>
@@ -120,7 +161,7 @@ export default function HomeScreen() {
                     <View style={styles.headerContainer}>
                         {/* Città di Riferimento */}
                         <Animated.View style={[styles.textCittaOverlay, textOpacityStyle]}>
-                            <ThemedText type="title" lightColor="white" style={styles.Textcitta}>
+                            <ThemedText type="title" lightColor="white" darkColor='white' style={styles.Textcitta}>
                                 {dynamicText}
                             </ThemedText>
                         </Animated.View>
@@ -181,7 +222,7 @@ export default function HomeScreen() {
                     loading ?
                         <View style={styles.containerLoading}>
                             <ActivityIndicator size="large" color="#ffffff" />
-                            <ThemedText type="subtitle" lightColor="white">
+                            <ThemedText type="subtitle" lightColor="white" darkColor='white'>
                                 Caricamento Dati
                             </ThemedText>
                         </View> :
