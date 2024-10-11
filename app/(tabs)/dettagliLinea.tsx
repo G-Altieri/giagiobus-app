@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Fermata } from '@/model/Type';
 import { getAspectRatio } from '@/service/funcUtili';
 import { useRouter } from 'expo-router';
+import { inserisciPercorso, recuperaPercorso } from '@/service/database';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -52,17 +53,28 @@ const DettagliLinea = () => {
   // Funzione per caricare il file GeoJSON dall'URL
   const fetchGeojson = async () => {
     try {
-      const filePercorso = await fetchPercorso(numLinea);
-      setGeojsonData(filePercorso);
+      // Controlla se il percorso è già presente nel database
+      // const percorsoDaDB = await recuperaPercorso(numLinea);
+      var percorsoDaDB = false
+      if (percorsoDaDB) {
+        // Se il percorso esiste, imposta i dati direttamente
+        console.log('Percorso Recuperaro dal DB')
+        setGeojsonData(percorsoDaDB);
+      } else {
+        // Altrimenti, effettua la richiesta per ottenere il GeoJSON
+        const filePercorso = await fetchPercorso(numLinea);
+        //console.log('Percorso Recuperaro dal Internet')
+        // inserisciPercorso(numLinea, filePercorso)
+        setGeojsonData(filePercorso);
+      }
     } catch (error) {
       console.error('Errore nel caricamento del GeoJSON:', error);
     }
   };
 
 
-
   const handlePressChangePage = (idFermata: string) => {
- 
+
     // navigation.navigate('dettagliFermata', { idFermata });
     router.push({
       pathname: '/dettagliFermata',

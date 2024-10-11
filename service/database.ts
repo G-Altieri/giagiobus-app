@@ -1,162 +1,159 @@
-import LineaAutobus from '@/model/LineaAutobus';
+import LineaAutobus, { Fermata } from '@/model/LineaAutobus';
 import * as SQLite from 'expo-sqlite';
 
-// Funzione per aprire o creare il database
+const DB_NAME = 'GiaGioBusTest';
+
 const openDatabase = async () => {
-  try {
-    console.log('Apertura del database...');
-    const db = await SQLite.openDatabaseAsync('giagiobusDB');
-    console.log('Database aperto correttamente:', db);
-    return db;
-  } catch (error) {
-    console.error('Errore durante l\'apertura del database:', error);
-  }
+
+    console.log('Opening database...');
+    return await SQLite.openDatabaseAsync(DB_NAME);
 }
 
-// Funzione per inizializzare il database con la creazione delle tabelle
-const initDatabase = async (db) => {
-  try {
-    console.log('Inizializzazione del database...');
-    await db.withTransactionAsync(async () => {
-      console.log('Creazione della tabella "corse" se non esiste...');
-      await db.execAsync(
-        'CREATE TABLE IF NOT EXISTS corse (id INTEGER PRIMARY KEY NOT NULL, nome TEXT, partenza TEXT, arrivo TEXT)'
-      );
-      console.log('Tabella "corse" creata o già esistente.');
+const initDatabase = async (db: SQLite.SQLiteDatabase) => {
 
-      console.log('Creazione della tabella "fermate" se non esiste...');
-      await db.execAsync(
-        'CREATE TABLE IF NOT EXISTS fermate (id INTEGER PRIMARY KEY NOT NULL, nome TEXT, latitudine REAL, longitudine REAL, ordine INTEGER, corsa_id INTEGER, FOREIGN KEY (corsa_id) REFERENCES corse (id))'
-      );
-      console.log('Tabella "fermate" creata o già esistente.');
-    });
-    console.log('Inizializzazione del database completata.');
-  } catch (error) {
-    console.error('Errore durante l\'inizializzazione del database:', error);
-  }
-}
-
-// Funzione per inserire le corse e le loro fermate nel database
-export const insertCorse = async (corse) => {
-  try {
-    console.log('Inserimento delle corse...');
-    const db = await openDatabase();
-    if (!db) {
-      console.error('Database non aperto, uscita...');
-      return;
+    try {
+        console.log('Initializing database...');
+        await db.execAsync('CREATE TABLE IF NOT EXISTS LineaBus (id INTEGER PRIMARY KEY NOT NULL, idLinea TEXT, nome TEXT, partenza TEXT, arrivo TEXT, orari TEXT,fermate TEXT,percorso TEXT)');
+    } catch (error) {
+        console.log(error);
     }
+}
+
+export const insertDatiLineaBus = async (dati: [LineaAutobus]) => {
+    const db = await openDatabase();
+    if (!db) return;
 
     await initDatabase(db);
-    console.log('Database inizializzato correttamente.');
 
-    // SQL per inserire una corsa e le fermate
-    const sqlCorsa = 'INSERT INTO corse (id, nome, partenza, arrivo) VALUES (?, ?, ?, ?)';
-    const sqlFermata = 'INSERT INTO fermate (id, nome, latitudine, longitudine, ordine, corsa_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO LineaBus (id, nome, partenza, arrivo, orari, fermate) VALUES ($idLinea, $nome, $partenza, $arrivo, $orari, $fermate)';
 
+    // Inizia una transazione
     await db.withTransactionAsync(async () => {
-      for (const corsa of corse) {
-        console.log(`Inserimento della corsa: ID: ${corsa.id}, Nome: ${corsa.nome}, Partenza: ${corsa.partenza}, Arrivo: ${corsa.arrivo}`);
-        await db.execAsync(sqlCorsa, [corsa.id, corsa.nome, corsa.partenza, corsa.arrivo]);
+        // Prepara lo statement una sola volta
+        const stmt = await db.prepareAsync(sql);
 
-        for (const fermata of corsa.fermate) {
-          console.log(`Inserimento fermata: ID: ${fermata.id}, Nome: ${fermata.nome}, Latitudine: ${fermata.latitudine}, Longitudine: ${fermata.longitudine}, Ordine: ${fermata.ordine}, CorsaID: ${corsa.id}`);
-          await db.execAsync(sqlFermata, [
-            fermata.id,
-            fermata.nome,
-            fermata.latitudine,
-            fermata.longitudine,
-            fermata.ordine,
-            corsa.id
-          ]);
+        try {
+            // Cicla sui dati e inserisci le righe
+            for (const lineaBus of dati) {
+                try {
+                    // Serializza le fermate come stringa JSON
+                    const fermateJson = JSON.stringify(lineaBus.fermate);
+
+                    // Esegui l'inserimento per ogni riga
+                    await stmt.executeAsync({ //@ts-ignore
+                        $idLinea: lineaBus.id,
+                        $nome: lineaBus.nome,
+                        $partenza: lineaBus.partenza,
+                        $arrivo: lineaBus.arrivo,
+                        $orari: lineaBus.orari,
+                        $fermate: fermateJson, // Inserisci la stringa JSON
+                    });
+                } catch (error) {
+                    console.error('Errore durante l\'inserimento di una riga:', error);
+                }
+            }
+        } finally {
+            // Finalizza lo statement una sola volta dopo il ciclo
+            await stmt.finalizeAsync();
         }
-      }
+    });
+};
+
+
+export const findDati = async () => {
+    const db = await openDatabase();
+    if (!db) return;
+
+    await initDatabase(db);
+
+    const sql = 'SELECT * FROM LineaBus';
+    const result = await db.getAllAsync(sql, []);
+
+    // Mappa i risultati deserializzando il campo `fermate`
+    const datiLineaBus = result.map((row: any) => {
+        const fermateJson = row.fermate;
+        const fermate = JSON.parse(fermateJson);  // Deserializza la stringa JSON in array di fermate
+        return {
+            ...row,
+            fermate: fermate.map((fermataJson: any) => Fermata.fromJson(fermataJson))  // Ricrea gli oggetti Fermata
+        };
     });
 
-    console.log('Tutte le corse e le fermate sono state inserite correttamente.');
-  } catch (error) {
-    console.error('Errore durante l\'inserimento delle corse e fermate:', error);
-  }
+    //console.log('Recupero completato:', datiLineaBus);
+    return datiLineaBus;
+}
+
+export const deleteDati = async () => {
+
+    const db = await openDatabase();
+    if (!db) return;
+
+    initDatabase(db);
+
+    const sql = 'DROP TABLE IF EXISTS LineaBus';
+    await db.execAsync(sql);
+    console.log('Tutti i dati nel database sono stati cancellati.');
+}
+
+export const cancellaDB = async () => {
+    SQLite.deleteDatabaseAsync(DB_NAME)
+    console.log('DatabaseCancellato.');
 }
 
 
-// Funzione per recuperare tutte le corse e le loro fermate dal database
-export const findCorse = async (): Promise<LineaAutobus[]> => {
-  try {
+/*
+export const inserisciPercorso = async (nomeLinea: any, percorsoGeoJson: string) => {
     const db = await openDatabase();
     if (!db) {
-      console.error('Errore: impossibile aprire il database.');
-      return [];
+        console.error('Errore nell\'apertura del database');
+        return;
     }
 
-    // Inizializziamo il database (crea le tabelle se non esistono)
     await initDatabase(db);
-    console.log('Database inizializzato.');
 
-    // Recuperiamo tutte le corse
-    console.log('Recupero delle corse dal database...');
-    const resultCorse = await db.execAsync('SELECT * FROM corse');
+    // Assicurati che il percorso sia una stringa JSON valida
+    const percorsoGeoJsonParsed = typeof percorsoGeoJson === 'string' ? percorsoGeoJson : JSON.stringify(percorsoGeoJson);
 
-    // Verifichiamo se ci sono risultati
-    if (!resultCorse || resultCorse.length === 0 || !resultCorse[0].rows) {
-      console.log('Nessuna corsa trovata.');
-      return [];
+    // Verifica prima se esiste la linea con quel nome
+    const checkSql = 'SELECT * FROM LineaBus WHERE nome = ?';
+    const resultCheck = await db.getAllAsync(checkSql, [nomeLinea]);
+
+    console.log('Linee trovate:', resultCheck);
+
+    if (resultCheck.length === 0) {
+        console.log(`Nessuna linea trovata con il nome: ${nomeLinea}`);
+        return;
     }
 
-    const corse = resultCorse[0].rows._array; // Lista di corse
-    console.log(`${corse.length} corse trovate.`); // Log del numero di corse trovate
+    // Procedi con l'aggiornamento del percorso
+    const sql = `UPDATE LineaBus SET percorso = '${percorsoGeoJsonParsed}' WHERE nome = '${nomeLinea}'`;
 
-    const resultWithFermate: LineaAutobus[] = [];
-
-    // Per ogni corsa, recuperiamo le fermate associate
-    for (const corsa of corse) {
-      console.log(`Recupero delle fermate per la corsa con ID: ${corsa.id}`);
-
-      const resultFermate = await db.execAsync(
-        'SELECT * FROM fermate WHERE corsa_id = ? ORDER BY ordine ASC',
-        [corsa.id]
-      );
-
-      // Controlliamo se ci sono fermate associate
-      if (!resultFermate || resultFermate.length === 0 || !resultFermate[0].rows) {
-        console.log(`Nessuna fermata trovata per la corsa con ID: ${corsa.id}`);
-        continue;  // Se non ci sono fermate, passiamo alla prossima corsa
-      }
-
-      const fermate = resultFermate[0].rows._array.map((fermataJson: any) =>
-        Fermata.fromJson(fermataJson)
-      );
-      console.log(`${fermate.length} fermate trovate per la corsa con ID: ${corsa.id}`);
-
-      // Creiamo l'oggetto LineaAutobus con le fermate
-      const linea = new LineaAutobus(corsa.nome, corsa.partenza, corsa.arrivo, fermate);
-      linea.id = corsa.id;  // Assegniamo l'id della corsa
-      resultWithFermate.push(linea);
+    try {
+        // Esegui la query di aggiornamento
+        await db.execAsync(sql);
+        console.log(`Percorso aggiornato per la linea: ${nomeLinea}`);
+    } catch (error) {
+        console.error('Errore durante l\'aggiornamento del percorso:', error);
     }
+};
 
-    console.log('Recupero delle corse completato.');
-    return resultWithFermate;
-  } catch (error) {
-    console.error('Errore nel recupero delle corse:', error);
-    return [];
-  }
-}
-
-// Funzione per eliminare tutte le corse e le fermate
-export const deleteAllCorse = async () => {
-  const db = await openDatabase();
-  if (!db) return;
-
-  await initDatabase(db);
-
-  try {
-    await db.withTransactionAsync(async () => {
-      // Prima eliminiamo tutte le fermate
-      await db.execAsync('DELETE FROM fermate');
-      // Poi eliminiamo tutte le corse
-      await db.execAsync('DELETE FROM corse');
-    });
-    console.log('Tutte le corse e le fermate sono state eliminate.');
-  } catch (error) {
-    console.error('Errore durante l\'eliminazione delle corse:', error);
-  }
-}
+export const recuperaPercorso = async (nomeLinea: any) => {
+    const db = await openDatabase();
+    if (!db) return;
+    await initDatabase(db);
+    const sql = 'SELECT * FROM LineaBus';
+    const result = await db.getAllAsync(sql, []);
+    // Filtra i risultati per trovare la linea corrispondente
+    const linea = result.find((row: any) => row.nome === nomeLinea);
+    if (linea) {
+        //@ts-ignore
+        const percorso = linea.percorso;
+        console.log(`Percorso recuperato per la linea: ${nomeLinea}`);
+        const percorsoGeoJson = JSON.parse(percorso);  
+        return percorsoGeoJson;  // Restituisce il percorso come stringa (GeoJSON)
+    } else {
+        console.log(`Nessun percorso trovato per la linea: ${nomeLinea}`);
+        return null;
+    }
+};
+*/

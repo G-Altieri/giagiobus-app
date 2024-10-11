@@ -18,26 +18,8 @@ interface DettagliLineaProps {
 }
 
 const RowLineaBus: React.FC<DettagliLineaProps> = ({ coloreBackground, numLinea, partenza, arrivo, linkImage, listaFermate, type = 0 }) => {
-    const navigation = useNavigation();
     const router = useRouter();
     const handlePress = () => {
-        // @ts-ignore
-        /*  navigation.navigate('dettagliLinea', {
-              coloreBackground,
-              numLinea,
-              partenza,
-              arrivo,
-              linkImage: linkImage,
-              listaFermate: JSON.stringify(listaFermate)
-          }); */
-        console.log('Navigating to dettagliLinea with params:', {
-            coloreBackground,
-            numLinea,
-            partenza,
-            arrivo,
-            linkImage,
-            listaFermate,
-        });
         router.push({
             pathname: '/dettagliLinea',
             params: {

@@ -7,9 +7,8 @@ import { ThemedView } from '@/components/ThemedView';
 import DettagliLinea from '@/components/utils/RowLineaBus';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, interpolate, Easing } from 'react-native-reanimated';
 import { Marquee } from '@animatereactnative/marquee';
-import { insertCorse, findCorse } from '@/service/database';
-import { insertDati, findDati,cancellaDB } from '@/service/database2';
-import { fetchFromAPI } from '@/service/request';
+import { insertDatiLineaBus, findDati, cancellaDB, deleteDati } from '@/service/database';
+import { fetchFromApiLineaBus } from '@/service/request';
 import { getColorById } from '@/service/funcUtili';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -22,73 +21,43 @@ export default function HomeScreen() {
     const [dynamicText, setDynamicText] = useState('L\'Aquila');
     const [dati, setDati] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [debugDatabase, setDebugDatabase] = useState('');
 
     useEffect(() => {
         //cancellaDB()
-        fetchData2();
-        //fetchData();
+        fetchData();
     }, []);
-
-    const fetchData2 = async () => {
-        try {
-            // Prova a recuperare i dati dal database
-            const datiDB = await findDati(); // Usa la funzione per trovare le corse
-            console.log('Dati recuperati dal database:', datiDB); // Log per debugging
-
-            if (datiDB.length > 0) {
-                console.log('Uso i dati dal DB');
-                //@ts-ignore
-                setDati(datiDB); // Usa i dati dal DB se esistono
-            } else {
-                console.log('Nessun dato trovato nel DB, eseguo fetch da API');
-                // Se il database è vuoto, fai la richiesta all'API
-                const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
-                //console.log('Dati recuperati dall\'API:', datiAPI);
-
-
-                // Salva i dati nel DB
-                await insertDati(datiAPI);
-                console.log('Dati inseriti nel DB con successo.');
-
-                setDati(datiAPI); // Imposta i dati dalla API
-            }
-        } catch (error) {
-            console.error('Errore nel recupero o salvataggio dei dati: ', error);
-        } finally {
-            setLoading(false); // Disattiva il caricamento
-        }
-    };
 
     const fetchData = async () => {
         try {
             // Prova a recuperare i dati dal database
-            const datiDB = await findCorse(); // Usa la funzione per trovare le corse
-            console.log('Dati recuperati dal database:', datiDB); // Log per debugging
+            const datiDB = await findDati(); // Usa la funzione per trovare le corse
+            // console.log('Dati recuperati dal database:', datiDB); // Log per debugging
+            if (datiDB != undefined)
+                if (datiDB.length > 0) {
+                    console.log('Uso i dati dal DB');
+                    //@ts-ignore
+                    setDati(datiDB); // Usa i dati dal DB se esistono
+                    setDebugDatabase('Dati recuperati dal Database')
+                } else {
+                    console.log('Nessun dato trovato nel DB, eseguo fetch da API');
+                    // Se il database è vuoto, fai la richiesta all'API
+                    const datiAPI = await fetchFromApiLineaBus(); // Usa la funzione per recuperare i dati dall'API
 
-            if (datiDB.length > 0) {
-                console.log('Uso i dati dal DB');
-                //@ts-ignore
-                setDati(datiDB); // Usa i dati dal DB se esistono
-            } else {
-                console.log('Nessun dato trovato nel DB, eseguo fetch da API');
-                // Se il database è vuoto, fai la richiesta all'API
-                const datiAPI = await fetchFromAPI(); // Usa la funzione per recuperare i dati dall'API
-                //console.log('Dati recuperati dall\'API:', datiAPI);
+                    // Salva i dati nel DB
+                    await insertDatiLineaBus(datiAPI);
+                    console.log('Dati inseriti nel DB con successo.');
 
+                    setDati(datiAPI); // Imposta i dati dalla API
+                    setDebugDatabase('Dati recuperati da Internet')
+                }
 
-                // Salva i dati nel DB
-                await insertCorse(datiAPI);
-                console.log('Dati inseriti nel DB con successo.');
-
-                setDati(datiAPI); // Imposta i dati dalla API
-            }
         } catch (error) {
             console.error('Errore nel recupero o salvataggio dei dati: ', error);
         } finally {
             setLoading(false); // Disattiva il caricamento
         }
     };
-
 
     // Stato animato per il top del bus (oscillazione su e giù)
     const topBus = useSharedValue(10);
@@ -135,6 +104,14 @@ export default function HomeScreen() {
             true
         );
     }, []);
+
+
+    // Funzione per cancellare il database e refreshare l'app
+    const handleDeleteAndRefresh = async () => {
+        await deleteDati(); // Cancella i dati dal DB
+        setLoading(true); // Mostra il caricamento mentre si aggiornano i dati
+        fetchData(); // Richiama il fetch dei dati per ricaricare l'app
+    };
 
 
     return (
@@ -254,6 +231,16 @@ export default function HomeScreen() {
                                         type={0}
                                     />
                                 })}
+
+                                {/* Debug  */}
+                                <ThemedText type="subtitle" lightColor="white" darkColor='white'>
+                                    {debugDatabase}
+                                </ThemedText>
+                                <TouchableOpacity activeOpacity={.8} onPress={() => { handleDeleteAndRefresh() }}>
+                                    <ThemedText type="subtitle" lightColor="white" darkColor='white'>
+                                        Cancella DB
+                                    </ThemedText>
+                                </TouchableOpacity>
                             </View>
                         </>}
             </ParallaxScrollView>

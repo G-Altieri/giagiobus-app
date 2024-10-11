@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const fetchFromAPI = async () => {
+
+//Funzione per il recupero delle linee degli autobus
+export const fetchFromApiLineaBus = async () => {
   try {
     const response = await axios.get('https://giagiobus.altervista.org/api/listaAutobus.php');
     const dati = response.data;
@@ -60,8 +62,6 @@ export const fetchDettagliFermati = async (numero) => {
 //INVIO NOTIFICHE
 export const sendPushNotificationToServer = async (title: string, body: string, expoPushToken: any) => {
   try {
-    // Recupera il token di notifica dal contesto
-    //  const { expoPushToken } = useNotification();
 
     // Controlla che il token sia disponibile
     if (!expoPushToken) {
