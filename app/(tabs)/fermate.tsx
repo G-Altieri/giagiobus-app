@@ -29,10 +29,10 @@ export default function MappaScreen() {
     // Effettua il fetch delle fermate e la posizione utente all'inizio
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true);
-            await fetchFermate();
-            await fetchUserLocation();
-            setLoading(false);
+            setLoading(true); //Imposto il render di caricamento
+            await fetchFermate(); //Carico le fermate
+            await fetchUserLocation(); //Carico la posizione del utente se possibile
+            setLoading(false); //Imposto il render normale
             setButtonEnabled(true); // Abilita il pulsante quando tutto è caricato
         };
 
@@ -42,7 +42,7 @@ export default function MappaScreen() {
     // Funzione per caricare il file GeoJSON dall'URL
     const fetchFermate = async () => {
         try {
-            console.log("Fetching fermate...");
+            console.log("Caricamento Fermate...");
             const fermate = await fetchAllFermate();
             // console.log("Fermate fetched:", fermate);
             setDataFermate(fermate);
@@ -54,14 +54,14 @@ export default function MappaScreen() {
     // Funzione per ottenere la posizione dell'utente
     const fetchUserLocation = async () => {
         try {
-            console.log("Requesting location permissions...");
+            console.log("Richiesta Permessi Posizione...");
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 console.error('Permesso per l\'accesso alla posizione negato');
                 return;
             }
 
-            console.log("Getting current position...");
+            console.log("Get posizione corrente...");
             let location = await Location.getCurrentPositionAsync({});
             const userLoc = {
                 latitude: location.coords.latitude,
@@ -77,7 +77,6 @@ export default function MappaScreen() {
     // Funzione per trovare la fermata più vicina all'utente
     const findClosestFermata = () => {
         if (dataFermate && userLocation) {
-            console.log("Finding closest fermata...");
             let minDistance = Infinity;
             let closest = null;
 
@@ -194,12 +193,7 @@ export default function MappaScreen() {
                             />
                         )}
                     </MapView>
-                    {/* Label per il tempo di viaggio */}
-                    {travelTime !== null && (
-                        <Text style={styles.travelTimeText}>
-                            Tempo stimato a piedi: {Math.round(travelTime)} minuti
-                        </Text>
-                    )}
+
                     {/* Pulsante per trovare la fermata più vicina */}
                     <TouchableOpacity
                         style={[styles.button, { backgroundColor: buttonEnabled ? '#132A68' : '#ccc' }]}
@@ -210,6 +204,12 @@ export default function MappaScreen() {
                             {loading ? 'Loading...' : 'Trova Fermata più Vicina'}
                         </Text>
                     </TouchableOpacity>
+                    {/* Label per il tempo di viaggio */}
+                    {travelTime !== null && (
+                        <Text style={styles.travelTimeText}>
+                            Tempo stimato a piedi: {Math.round(travelTime)} minuti
+                        </Text>
+                    )}
                 </ScrollView>
             </SafeAreaView>
         </>
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     travelTimeText: {
         fontSize: 18,
         textAlign: 'center',
-        marginVertical: 10,
+        marginTop: 0,
         color: '#333',
     },
 });

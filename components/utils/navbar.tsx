@@ -13,8 +13,7 @@ const NavBar: React.FC<HeaderWithBackButtonProps> = ({ title }) => {
     const router = useRouter();
 
     const handleGoBack = () => {
-        console.log("Going back to previous route");
-        router.back(); // Usa solo router.back() per tornare alla schermata precedente
+        router.back();
     };
 
     return (

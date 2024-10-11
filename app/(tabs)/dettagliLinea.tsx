@@ -15,21 +15,19 @@ import { useNavigation } from '@react-navigation/native';
 import { Fermata } from '@/model/Type';
 import { getAspectRatio } from '@/service/funcUtili';
 import { useRouter } from 'expo-router';
-import { inserisciPercorso, recuperaPercorso } from '@/service/database';
-
-const { width: screenWidth } = Dimensions.get('window');
-
 
 const DettagliLinea = () => {
   const navigation = useNavigation();
-  // Get parameters from the route
+  //Recupero Parametri dalla home
   const { coloreBackground, numLinea, partenza, arrivo, listaFermate, linkImage } = useLocalSearchParams();
+  const [geojsonData, setGeojsonData] = useState(null);
   const router = useRouter();
 
+  //Img di default
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-  const aspectRatio = getAspectRatio(String(numLinea));
+  const aspectRatio = getAspectRatio(String(numLinea)); //calcolo del aspecRation in base alla linea
 
   // Effettua il parsing di listaFermate se è una stringa
   let parsedListaFermate: Fermata[] = [];
@@ -45,28 +43,16 @@ const DettagliLinea = () => {
     parsedListaFermate = listaFermate as Fermata[];
   }
 
-  const [geojsonData, setGeojsonData] = useState(null);
+
 
   useEffect(() => {
     fetchGeojson();
   }, [numLinea]);
-  // Funzione per caricare il file GeoJSON dall'URL
+  // Funzione per caricare il file GeoJSON
   const fetchGeojson = async () => {
     try {
-      // Controlla se il percorso è già presente nel database
-      // const percorsoDaDB = await recuperaPercorso(numLinea);
-      var percorsoDaDB = false
-      if (percorsoDaDB) {
-        // Se il percorso esiste, imposta i dati direttamente
-        console.log('Percorso Recuperaro dal DB')
-        setGeojsonData(percorsoDaDB);
-      } else {
-        // Altrimenti, effettua la richiesta per ottenere il GeoJSON
-        const filePercorso = await fetchPercorso(numLinea);
-        //console.log('Percorso Recuperaro dal Internet')
-        // inserisciPercorso(numLinea, filePercorso)
-        setGeojsonData(filePercorso);
-      }
+      const filePercorso = await fetchPercorso(numLinea);
+      setGeojsonData(filePercorso);
     } catch (error) {
       console.error('Errore nel caricamento del GeoJSON:', error);
     }
@@ -74,8 +60,6 @@ const DettagliLinea = () => {
 
 
   const handlePressChangePage = (idFermata: string) => {
-
-    // navigation.navigate('dettagliFermata', { idFermata });
     router.push({
       pathname: '/dettagliFermata',
       params: { idFermata, }
@@ -92,7 +76,6 @@ const DettagliLinea = () => {
 
       {/* View fissa per logo e titolo */}
       <NavBar title={'Linea ' + numLinea} />
-
 
       <SafeAreaView style={styles.container}>
         <ScrollView>
@@ -175,7 +158,6 @@ const DettagliLinea = () => {
           </ThemedView>
 
           <ListaFermate fermate={parsedListaFermate} numLinea={numLinea} />
-
 
         </ScrollView>
       </SafeAreaView>

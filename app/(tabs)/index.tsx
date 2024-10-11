@@ -17,11 +17,10 @@ const { width: screenWidth } = Dimensions.get('window');
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export default function HomeScreen() {
-    // Stato per la scritta dinamica
     const [dynamicText, setDynamicText] = useState('L\'Aquila');
-    const [dati, setDati] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [debugDatabase, setDebugDatabase] = useState('');
+    const [dati, setDati] = useState([]); //Gestiste i dati della pagina
+    const [loading, setLoading] = useState(true); //Gestisce il render della pagina con il loading
+    const [debugDatabase, setDebugDatabase] = useState(''); //Usato per il debug del DB
 
     useEffect(() => {
         //cancellaDB()
@@ -31,7 +30,7 @@ export default function HomeScreen() {
     const fetchData = async () => {
         try {
             // Prova a recuperare i dati dal database
-            const datiDB = await findDati(); // Usa la funzione per trovare le corse
+            const datiDB = await findDati(); //recupero i dati dal db
             // console.log('Dati recuperati dal database:', datiDB); // Log per debugging
             if (datiDB != undefined)
                 if (datiDB.length > 0) {
@@ -42,7 +41,7 @@ export default function HomeScreen() {
                 } else {
                     console.log('Nessun dato trovato nel DB, eseguo fetch da API');
                     // Se il database è vuoto, fai la richiesta all'API
-                    const datiAPI = await fetchFromApiLineaBus(); // Usa la funzione per recuperare i dati dall'API
+                    const datiAPI = await fetchFromApiLineaBus(); //Recupero i dati dal API online
 
                     // Salva i dati nel DB
                     await insertDatiLineaBus(datiAPI);
@@ -59,6 +58,7 @@ export default function HomeScreen() {
         }
     };
 
+    //*****ANIMAZIONE BUS */
     // Stato animato per il top del bus (oscillazione su e giù)
     const topBus = useSharedValue(10);
 
@@ -96,7 +96,7 @@ export default function HomeScreen() {
         };
     });
 
-    // Oscillazione del bus da top 10 a top 40
+    // Oscillazione del bus da top 10 a top 35
     useEffect(() => {
         topBus.value = withRepeat(
             withTiming(35, { duration: 3000, easing: Easing.linear }),

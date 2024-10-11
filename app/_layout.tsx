@@ -14,7 +14,7 @@ import * as TaskManager from "expo-task-manager";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
@@ -29,7 +29,6 @@ TaskManager.defineTask(
       error,
       executionInfo,
     });
-    // Do something with the notification data
   }
 );
 
@@ -67,10 +66,6 @@ export default function RootLayout() {
         <Stack>
           {/* Schermata principale delle tabs */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-          {/* Schermate di dettaglio gestite nello stack */}
-          {/* <Stack.Screen name="dettagliLinea" options={{ title: 'Dettagli Linea', headerShown: false, }} /> */}
-          {/* <Stack.Screen name="dettagliFermata" options={{ title: 'Dettagli Fermata', headerShown: false, }} /> */}
 
           {/* Schermata not-found */}
           <Stack.Screen name="+not-found" />

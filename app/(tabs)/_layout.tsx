@@ -18,6 +18,7 @@ export default function TabLayout() {
         },
       }}
     >
+      {/* Home, schermata principale */}
       <Tabs.Screen
         name="index"
         options={{
@@ -27,6 +28,7 @@ export default function TabLayout() {
             focused ? <IconaLineeFill size={26} /> : <IconaLineeOutline size={26} />,
         }}
       />
+      {/* Fermate, schermata con tutte le fermate sulla mappa */}
       <Tabs.Screen
         name="fermate"
         options={{
@@ -36,17 +38,17 @@ export default function TabLayout() {
             !focused ? <IconaBusStopOutline size={26} /> : <IconaBusStopFill size={26} />,
         }}
       />
+      {/* Dettagli di una singola linea di Bus*/}
       <Tabs.Screen
         name="dettagliLinea"
         options={{
-          //  href: '/dettagliLinea',
           tabBarButton: () => null
         }} // Nascondi l'icona nella tab bar
       />
+      {/* Dettagli di una singola Fermata*/}
       <Tabs.Screen
         name="dettagliFermata"
         options={{
-          //  href: '/dettagliFermata',
           tabBarButton: () => null
         }} // Nascondi l'icona nella tab bar
       />

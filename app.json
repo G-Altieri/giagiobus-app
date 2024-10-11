@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "giagiobus-app",
+    "name": "GiaGioBus",
     "slug": "giagiobus-app",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -21,7 +21,6 @@
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi":true,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBCq02HTE1ibyqnb4z_RlM-73YumxdHgmg"
